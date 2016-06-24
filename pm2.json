@@ -1,0 +1,4 @@
+{
+  "script": "./lib/app.js",
+  "name": "geonames-sync"
+}

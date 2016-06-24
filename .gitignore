@@ -1,0 +1,10 @@
+#
+#
+#
+
+.DS_Store
+.env
+node_modules
+temp/
+npm-debug.log
+*.tgz
