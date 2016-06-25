@@ -32,7 +32,7 @@
     "fs-extra": "^0.30.0",
     "line-reader": "^0.2.4",
     "lodash": "^4.13.1",
-    "ournet.data.places": "^0.4.0",
+    "ournet.data.places": "^0.4.1",
     "ournet.logger": "^0.1.0",
     "ournet.utils": "^0.1.1",
     "request": "^2.53.0",
