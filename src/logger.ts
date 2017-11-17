@@ -1,6 +1,5 @@
-'use strict';
 
-var logger = module.exports = require('ournet.logger');
+const logger = require('ournet.logger');
 
 if (process.env.NODE_ENV === 'production') {
 	logger.loggly({
@@ -9,3 +8,5 @@ if (process.env.NODE_ENV === 'production') {
 	});
 	logger.removeConsole();
 }
+
+export default logger;
