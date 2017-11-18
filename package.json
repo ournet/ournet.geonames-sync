@@ -33,9 +33,11 @@
     "adm-zip": "^0.4.7",
     "debug": "^2.2.0",
     "dotenv": "^0.5.1",
+    "line-by-line": "^0.1.5",
     "ournet.data.places": "^0.4.3",
     "ournet.logger": "^0.1.0",
     "rimraf": "^2.6.2",
+    "rxjs": "^5.5.2",
     "standard-text": "^0.1.1"
   },
   "devDependencies": {

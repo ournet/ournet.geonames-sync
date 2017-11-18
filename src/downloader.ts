@@ -6,7 +6,7 @@ import * as http from 'http';
 // const fs = Promise.promisifyAll(require('fs'));
 // const fse = Promise.promisifyAll(require('fs-extra'));
 const AdmZip = require('adm-zip');
-const TEMP_DIR = './temp';
+const TEMP_DIR = path.join(__dirname, '..', 'temp');
 const debug = require('debug')('geonames-sync');
 import * as readline from 'readline';
 // const AltNames = require('./altnames');
@@ -67,9 +67,7 @@ export function downloadFile(filename: string): Promise<string> {
                         outFile.close();
                         resolve();
                     });
-                }).on('error', function (err) { // Handle errors
-                    reject(err);
-                });
+                }).on('error', reject);
             });
         }).then(() => file);
 };
@@ -102,7 +100,7 @@ function isFileFresh(file: string, hours: number = 6) {
         const stats = fs.statSync(file);
         return Promise.resolve(stats.ctime.getTime() > Date.now() - hours * 60 * 60 * 1000);
     } catch (e) {
-        return Promise.reject(false);
+        return Promise.resolve(false);
     }
 };
 
@@ -116,3 +114,14 @@ function removeFR(file: string): Promise<string> {
         });
     });
 }
+
+// function mkdir(dir: string): Promise<string> {
+//     return new Promise((resolve) => {
+//         rimraf(file, () => {
+//             // if (error) {
+//             //     return reject(error);
+//             // }
+//             resolve(file);
+//         });
+//     });
+// }

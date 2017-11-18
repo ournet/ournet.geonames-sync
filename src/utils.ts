@@ -70,8 +70,8 @@ const VALID_PLACE_TYPES: { [name: string]: string[] } = {
 	V: ['FRST', 'GRSLD']
 };
 
-export function isValidPlace(place: { country_code: string, feature_class: string, feature_code: string }) {
-	return place && isSupportedCountry(place.country_code) && isValidPlaceType(place);
+export function isValidPlace(place: { country_code: string, feature_class: string, feature_code: string, admin1_code: string }) {
+	return place && place.admin1_code && isSupportedCountry(place.country_code) && isValidPlaceType(place);
 }
 
 export function isValidPlaceType(place: { feature_class: string, feature_code: string }) {

@@ -18,9 +18,9 @@ if (!isSupportedCountry(country)) {
 
 importCountry(country)
     .then(function () {
-        logger.warn('END IMPORT');
+        logger.warn('SUCCESS END IMPORT');
     })
     .catch(function (error) {
-        logger.error(error);
+        logger.error('ERROR END IMPORT', error);
     });
 

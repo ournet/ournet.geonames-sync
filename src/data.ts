@@ -3,7 +3,7 @@
 
 import logger from './logger';
 import { PlaceCreateUseCase, PlaceDeleteUseCase, PlaceUpdateUseCase, IPlace, PlaceHelpers } from '@ournet/places-domain';
-import { PlaceRepository } from '@ournet/places-data';
+import { PlaceRepository, createDbTables } from '@ournet/places-data';
 import { GeonameAltName } from './geonames';
 
 const ES_HOST = process.env.PLACES_ES_HOST;
@@ -12,12 +12,16 @@ if (!ES_HOST) {
 }
 
 const repository = new PlaceRepository({
-    esHosts: [ES_HOST]
+    esHost: ES_HOST
 });
 
 const placeCreate = new PlaceCreateUseCase(repository);
 const placeUpdate = new PlaceUpdateUseCase(repository);
 const placeDelete = new PlaceDeleteUseCase(repository);
+
+export function init() {
+    return createDbTables();
+}
 
 export function setPlaceAltName(id: number, newnames: GeonameAltName[]) {
     if (!newnames) {
