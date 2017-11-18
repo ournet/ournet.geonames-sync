@@ -16,7 +16,9 @@ if (!isSupportedCountry(country)) {
     throw new Error(`Country ${country} is not supported`);
 }
 
-importCountry(country)
+const startId = process.env.START_ID && parseInt(process.env.START_ID);
+
+importCountry(country, { startId: startId })
     .then(function () {
         logger.warn('SUCCESS END IMPORT');
     })
