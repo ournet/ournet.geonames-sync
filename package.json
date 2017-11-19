@@ -11,7 +11,8 @@
     "tsc": "tsc",
     "tscw": "tsc -w",
     "preversion": "npm run tsc",
-    "postversion": "git push --follow-tags"
+    "postversion": "git push --follow-tags",
+    "clean-test-code": "rm -fr ./lib/**/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -37,6 +38,7 @@
     "debug": "^2.2.0",
     "dotenv": "^0.5.1",
     "line-by-line": "^0.1.5",
+    "node-fetch": "^1.7.3",
     "ournet.data.places": "^0.4.3",
     "ournet.logger": "^0.1.0",
     "rimraf": "^2.6.2",
@@ -45,6 +47,8 @@
   },
   "devDependencies": {
     "@types/node": "^8.0.53",
-    "@types/rimraf": "^2.0.2"
+    "@types/node-fetch": "^1.6.7",
+    "@types/rimraf": "^2.0.2",
+    "ava": "^0.23.0"
   }
 }

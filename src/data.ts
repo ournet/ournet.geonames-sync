@@ -6,6 +6,7 @@ import { PlaceCreateUseCase, PlaceDeleteUseCase, PlaceUpdateUseCase, IPlace, Pla
 import { PlaceRepository, createDbTables } from '@ournet/places-data';
 import { GeonameAltName } from './geonames';
 import { isValidAltName } from './utils'
+import { getWikiDataId } from './getWikiDataId';
 
 const ES_HOST = process.env.PLACES_ES_HOST;
 if (!ES_HOST) {
@@ -76,6 +77,8 @@ export function putPlace(place: IPlace) {
                 return placeDelete.execute(place.id).catch(e => logger.warn(e.message))
             }
         })
+        .then(() => getWikiDataId(place.id).catch(e => logger.error(e)))
+        .then((wikidataId: string) => wikidataId && (place.wikiId = wikidataId))
         .then(() => placeCreate.execute(place))
         .then(function (dbPlace: IPlace) {
             logger.warn('Put place', place.id, place.name, place.countryCode);
