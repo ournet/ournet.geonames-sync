@@ -43,7 +43,7 @@ function processGeoname(countryCode: string, altNamesFile: string, geoname: GeoN
                         .then(geonames => {
                             debug(`geonames for ${place.id}:`, geonames);
                             if (geonames && geonames.length) {
-                                return Data.setPlaceAltName(place.id, geonames);
+                                return Data.setPlaceAltName(place.id, place.countryCode, geonames);
                             }
                         });
                 });
@@ -112,7 +112,7 @@ export function importCountry(countryCode: string, options?: ImportOptions) {
 
     return downloadCountry(countryCode)
         .then(function (countryFile) {
-            return downloadLangAlternateNames().then(altNamesFile => {
+            return downloadLangAlternateNames(countryCode).then(altNamesFile => {
                 return Data.init().then(() => importPlaces(countryCode, countryFile, altNamesFile, options));
             });
         });

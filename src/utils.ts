@@ -17,7 +17,9 @@ const COUNTRY_LANGUAGES: { [name: string]: string[] } = {
 	it: ['en', 'it'],
 	bg: ['en', 'ro', 'bg'],
 	al: ['en', 'sq'],
-	tr: ['en', 'tr', 'ku']
+	tr: ['en', 'tr', 'ku'],
+	// by: ['en', 'ru', 'be'],
+
 }
 
 export function countryLanguages(country: string) {
@@ -36,8 +38,12 @@ export function isSupportedLanguage(lang: string) {
 	return SupportedLanguages.indexOf(lang) >= 0;
 }
 
-export function isValidAltName(name: string, lang: string) {
-	if (typeof lang !== 'string' || lang.length !== 2) {
+export function isValidCountryLang(country: string, lang: string) {
+	return COUNTRY_LANGUAGES[country] && COUNTRY_LANGUAGES[country].indexOf(lang) > -1;
+}
+
+export function isValidAltName(name: string, lang: string, country: string) {
+	if (!isValidCountryLang(country, lang)) {
 		return false;
 	}
 

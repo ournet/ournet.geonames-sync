@@ -12,7 +12,7 @@ import * as readline from 'readline';
 // const AltNames = require('./altnames');
 import * as rimraf from 'rimraf';
 import { parseAltName } from './geonames';
-import { supportedLanguages } from './utils';
+import { isValidCountryLang } from './utils';
 
 export function downloadCountry(country_code: string) {
     country_code = country_code.toUpperCase();
@@ -23,10 +23,10 @@ export function downloadAlternateNames() {
     return downloadUnzip('alternateNames').then(file => path.join(file, 'alternateNames.txt'));
 }
 
-export function downloadLangAlternateNames(): Promise<string> {
+export function downloadLangAlternateNames(country: string): Promise<string> {
     return downloadAlternateNames()
         .then(altnamesfile => {
-            const file = path.join(path.dirname(altnamesfile), 'langAlternateNames.txt');
+            const file = path.join(path.dirname(altnamesfile), country + '-langAlternateNames.txt');
             return isFileFresh(file).then(isFresh => {
                 if (isFresh) {
                     return file;
@@ -38,7 +38,7 @@ export function downloadLangAlternateNames(): Promise<string> {
                             input: fs.createReadStream(altnamesfile)
                         }).on('line', (line: string) => {
                             const altName = parseAltName(line);
-                            if (altName && altName.language && altName.language.length === 2 && supportedLanguages().indexOf(altName.language) > -1) {
+                            if (altName && altName.language && isValidCountryLang(country, altName.language)) {
                                 output.write(line + '\n', 'utf8');
                             }
                         }).on('close', () => {

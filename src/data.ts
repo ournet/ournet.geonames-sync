@@ -24,7 +24,7 @@ export function init() {
     return createDbTables().then(() => repository.init());
 }
 
-export function setPlaceAltName(id: number, newnames: GeonameAltName[]) {
+export function setPlaceAltName(id: number, country: string, newnames: GeonameAltName[]) {
     if (!newnames) {
         return Promise.resolve(false);
     }
@@ -38,9 +38,10 @@ export function setPlaceAltName(id: number, newnames: GeonameAltName[]) {
             const orignames = place.names;
             let nnames = newnames.map(nn => {
                 return { lang: nn.language, name: nn.name, isPreferred: nn.isPreferred }
-            }).filter(name => isValidAltName(name.name, name.lang));
+            }).filter(name => isValidAltName(name.name, name.lang, country));
 
             if (place.names) {
+                debug('names', place.names);
                 const oldNames = PlaceHelpers.parseNames(place.names).map(n => { return { name: n.name, lang: n.lang, isPreferred: false } });
                 nnames = oldNames.concat(nnames);
             }
@@ -62,6 +63,13 @@ export function setPlaceAltName(id: number, newnames: GeonameAltName[]) {
 export function putPlace(place: IPlace) {
     cleanObject(place);
 
+    if (place.names) {
+        place.names = filterPlaceNames(place.countryCode, place.names);
+        if (!place.names) {
+            delete place.names;
+        }
+    }
+
     return repository.getById(place.id)
         .then((dbPlace: IPlace) => {
             if (dbPlace) {
@@ -78,11 +86,22 @@ export function putPlace(place: IPlace) {
 export function updatePlace(place: IPlace) {
     cleanObject(place);
 
+    if (place.names) {
+        place.names = filterPlaceNames(place.countryCode, place.names);
+        if (!place.names) {
+            delete place.names;
+        }
+    }
+
     return placeUpdate.execute({ item: place })
         .then(function (nplace) {
             logger.warn('updated place', place.id, place.name, place.countryCode);
             return nplace;
         });
+}
+
+function filterPlaceNames(country: string, names: string) {
+    return PlaceHelpers.parseNames(names).filter(name => isValidAltName(name.name, name.lang, country)).map(name => PlaceHelpers.formatName(name.name, name.lang)).join('|');
 }
 
 function cleanObject<T extends { [name: string]: any }>(obj: T): T {
