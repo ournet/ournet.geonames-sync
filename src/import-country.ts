@@ -25,10 +25,11 @@ export function importCountry(countryCode: string, options?: ImportOptions) {
 
 function importPlaces(countryCode: string, countryFile: string, altNamesFile: string, options: ImportOptions) {
     debug('in importPlaces');
+    let lastPlaceId: number;
+
     return new Promise((resolveImport, rejectImport) => {
         let started = false;
         const lineSource = new LineByLineReader(countryFile);
-        let lastPlaceId: number;
 
         lineSource.on('line', (line: string) => {
             lineSource.pause();
@@ -55,10 +56,11 @@ function importPlaces(countryCode: string, countryFile: string, altNamesFile: st
                     rejectImport(e);
                 });
         })
-            .on('error', (error: Error) => {
-                logger.error(countryCode + ' END_PLACE_ID=' + lastPlaceId, { country: countryCode, placeId: lastPlaceId });
-                rejectImport(error);
-            })
+            .on('error', rejectImport)
             .on('end', resolveImport);
-    });
+    })
+        .catch((error: Error) => {
+            logger.error(countryCode + ' END_PLACE_ID=' + lastPlaceId, { country: countryCode, placeId: lastPlaceId });
+            return Promise.reject(error);
+        });
 }
