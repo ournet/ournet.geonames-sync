@@ -45,7 +45,7 @@ export function importPlace(countryCode: string, altNamesFile: string, geoname: 
                     .then(wikiId => {
                         if (wikiId) {
                             place.wikiId = wikiId;
-                        };
+                        }
                     })
                     .catch(e => logger.error(e)))
                 .then(() => Data.putPlace(place))

@@ -70,13 +70,14 @@ export function putPlace(place: IPlace) {
         }
     }
 
+    debug('putting place', place);
+
     return repository.getById(place.id)
         .then((dbPlace: IPlace) => {
             if (dbPlace) {
                 return placeDelete.execute(place.id).catch(e => logger.warn(e.message))
             }
         })
-        .then((wikidataId: string) => wikidataId && (place.wikiId = wikidataId))
         .then(() => placeCreate.execute(place))
         .then(function (dbPlace: IPlace) {
             debug('Put place', place.id, place.name, place.countryCode);
