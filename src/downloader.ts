@@ -87,7 +87,8 @@ function downloadUnzip(name: string, hours?: number) {
                 debug('file is fresh', zipName);
                 return Promise.resolve(folderName);
             }
-            return downloadFile(name + '.zip')
+            return removeFR(folderName)
+                .then(() => downloadFile(name + '.zip'))
                 // .delay(1000 * 2)
                 .then(function () {
                     return unzip(zipName, folderName).then(function () { return folderName });

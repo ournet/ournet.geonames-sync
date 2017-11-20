@@ -32,7 +32,7 @@
   "homepage": "https://github.com/Ournet/ournet.geonames-sync#readme",
   "dependencies": {
     "@ournet/domain": "^0.1.0",
-    "@ournet/places-data": "^0.1.1",
+    "@ournet/places-data": "^0.1.2",
     "@ournet/places-domain": "^0.1.1",
     "adm-zip": "^0.4.7",
     "debug": "^2.2.0",
