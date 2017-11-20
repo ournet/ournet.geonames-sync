@@ -41,7 +41,13 @@ export function importPlace(countryCode: string, altNamesFile: string, geoname: 
                 // debug('oldnames', place.names);
             }
             return getWikiDataId(place.id)
-                .then(() => getWikiDataId(place.id).then(wikiId => wikiId && (place.wikiId = wikiId)).catch(e => logger.error(e)))
+                .then(() => getWikiDataId(place.id)
+                    .then(wikiId => {
+                        if (wikiId) {
+                            place.wikiId = wikiId;
+                        };
+                    })
+                    .catch(e => logger.error(e)))
                 .then(() => Data.putPlace(place))
                 .then(() => {
                     return getGeonameNamesById(altNamesFile, place.id)

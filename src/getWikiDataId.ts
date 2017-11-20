@@ -10,5 +10,10 @@ export function getWikiDataId(geonameId: number): Promise<string> {
     })
         .then(response => response.json())
         .then(json => json && json.results && json.results.bindings && json.results.bindings.length && json.results.bindings[0].item.value.replace('http://www.wikidata.org/entity/', ''))
-        .then(result => (typeof result === 'string') && /^Q\d+$/.test(result) && result || null);
+        .then(result => {
+            if (typeof result === 'string' && /^Q\d+$/.test(result)) {
+                return result;
+            }
+            return null;
+        });
 }
