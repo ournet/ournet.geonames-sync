@@ -3,7 +3,7 @@ require('dotenv').load();
 
 import { isSupportedCountry } from './utils';
 import logger from './logger';
-import { importCountry } from './importer';
+import { importCountry } from './import-country';
 
 process.on('uncaughtException', function (err) {
     logger.error('uncaughtException: ' + err.message, err);
@@ -23,6 +23,5 @@ importCountry(country, { startId: startId })
         logger.warn('SUCCESS END IMPORT');
     })
     .catch(function (error) {
-        logger.error('ERROR END IMPORT', error);
+        logger.error('ERROR END IMPORT: ' + country, error);
     });
-

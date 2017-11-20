@@ -70,8 +70,9 @@ export function isRussianChar(ch: string) {
 
 const VALID_PLACE_TYPES: { [name: string]: string[] } = {
 	A: ['ADM1'],
+	L: ['CST', 'LCTY', 'MILB', 'MVA', 'OILF', 'PRT', 'RGN', 'RGNH', 'RGNL', 'TRB'],
 	P: [],
-	S: ['AIRP', 'ANS', 'ATHF', 'CSTL', 'HSTS', 'OBS', 'PYR', 'PYRS', 'RLG', 'ZOO'],
+	S: ['AIRP', 'ANS', 'ATHF', 'CSTL', 'HSTS', 'OBS', 'PYR', 'PYRS', 'RLG', 'RSRT', 'ZOO'],
 	T: ['BCH', 'BCHS', 'CNYN', 'DSRT', 'DLTA', 'DPR', 'DSRT', 'HDLD', 'HLL', 'HLLS', 'ISLET', 'ISLF', 'MT', 'MTS', 'PK', 'PKS', 'PLN', 'VAL', 'VALS', 'VLC'],
 	V: ['FRST', 'GRSLD']
 };
