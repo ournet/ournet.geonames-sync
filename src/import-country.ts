@@ -28,6 +28,7 @@ function importPlaces(countryCode: string, countryFile: string, altNamesFile: st
     return new Promise((resolveImport, rejectImport) => {
         let started = false;
         const lineSource = new LineByLineReader(countryFile);
+        let lastPlaceId: number;
 
         lineSource.on('line', (line: string) => {
             lineSource.pause();
@@ -46,6 +47,7 @@ function importPlaces(countryCode: string, countryFile: string, altNamesFile: st
                     return lineSource.resume();
                 }
             }
+            lastPlaceId = geoname.id;
             importPlace(countryCode, altNamesFile, geoname)
                 .then(() => lineSource.resume())
                 .catch((e: Error) => {
@@ -53,7 +55,10 @@ function importPlaces(countryCode: string, countryFile: string, altNamesFile: st
                     rejectImport(e);
                 });
         })
-            .on('error', rejectImport)
+            .on('error', (error: Error) => {
+                logger.error(countryCode + ' END_PLACE_ID=' + lastPlaceId, { country: countryCode, placeId: lastPlaceId });
+                rejectImport(error);
+            })
             .on('end', resolveImport);
     });
 }
