@@ -54,7 +54,7 @@ export function setPlaceAltName(id: number, country: string, newnames: GeonameAl
             //console.log('updating place');
             return updatePlace(place)
                 .then(function () {
-                    logger.info('Updated place names', { id: place.id, name: place.name, names: place.names });
+                    debug('Updated place names', { id: place.id, name: place.name, names: place.names });
                     return true;
                 });
         });
@@ -79,7 +79,7 @@ export function putPlace(place: IPlace) {
         .then((wikidataId: string) => wikidataId && (place.wikiId = wikidataId))
         .then(() => placeCreate.execute(place))
         .then(function (dbPlace: IPlace) {
-            logger.warn('Put place', place.id, place.name, place.countryCode);
+            debug('Put place', place.id, place.name, place.countryCode);
             return dbPlace;
         });
 }
@@ -96,7 +96,7 @@ export function updatePlace(place: IPlace) {
 
     return placeUpdate.execute({ item: place })
         .then(function (nplace) {
-            logger.warn('updated place', place.id, place.name, place.countryCode);
+            debug('updated place', place.id, place.name, place.countryCode);
             return nplace;
         });
 }
