@@ -55,7 +55,7 @@ export function downloadFile(filename: string): Promise<string> {
     debug('downloading file', filename);
 
     var file = path.join(TEMP_DIR, filename);
-    return removeFR(file)
+    return Promise.all([removeFR(file.replace(/\.\w+$/, '')), removeFR(file)])
         .then(function () {
             var url = 'http://download.geonames.org/export/dump/' + filename;
             debug('downloading url', url);
