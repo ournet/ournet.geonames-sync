@@ -24,4 +24,5 @@ importCountry(country, { startId: startId })
     })
     .catch(function (error) {
         logger.error('ERROR END IMPORT: ' + country, error);
-    });
+    })
+    .then(() => setTimeout(() => { }, 1000 * 6));
