@@ -37,12 +37,12 @@ export function mapGeoNamePlace(geoname: GeoName): IPlace {
     return place;
 }
 
-const NAMES_MAP: { [name: string]: { [id: number]: GeonameAltName[] } } = {};
+// const NAMES_MAP: { [name: string]: { [id: number]: GeonameAltName[] } } = {};
 
 export function getGeonameNamesById(file: string, geonameid: number): Promise<GeonameAltName[]> {
-    if (NAMES_MAP[file]) {
-        return Promise.resolve(NAMES_MAP[file][geonameid] || []);
-    }
+    // if (NAMES_MAP[file]) {
+    //     return Promise.resolve(NAMES_MAP[file][geonameid] || []);
+    // }
     return new Promise((resolve, reject) => {
         const map: { [id: number]: GeonameAltName[] } = {};
         readline.createInterface({
@@ -52,7 +52,7 @@ export function getGeonameNamesById(file: string, geonameid: number): Promise<Ge
             map[altName.geonameid] = map[altName.geonameid] || [];
             map[altName.geonameid].push(altName);
         }).on('close', () => {
-            NAMES_MAP[file] = map;
+            // NAMES_MAP[file] = map;
             resolve(map[geonameid] || []);
         }).on('error', reject);
     });
