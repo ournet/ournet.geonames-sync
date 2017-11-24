@@ -26,6 +26,7 @@ export function importCountry(countryCode: string, options?: ImportOptions) {
 function importPlaces(countryCode: string, countryFile: string, altNamesFile: string, options: ImportOptions) {
     debug('in importPlaces');
     let lastPlaceId: number;
+    let totalCount = 0;
 
     return new Promise((resolveImport, rejectImport) => {
         let started = false;
@@ -50,6 +51,13 @@ function importPlaces(countryCode: string, countryFile: string, altNamesFile: st
             }
             lastPlaceId = geoname.id;
             importPlace(countryCode, altNamesFile, geoname)
+                .then(() => {
+                    totalCount++;
+                    // log every 100
+                    if (totalCount % 1000 === 0) {
+                        logger.warn(`${totalCount} - Importerd place: ${geoname.id}, ${countryCode}`);
+                    }
+                })
                 .then(() => lineSource.resume())
                 .catch((e: Error) => {
                     rejectImport(e);
