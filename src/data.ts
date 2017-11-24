@@ -71,7 +71,6 @@ export function putPlace(place: IPlace) {
     }
 
     debug('putting place', place);
-
     return repository.getById(place.id)
         .then((dbPlace: IPlace) => {
             if (dbPlace) {

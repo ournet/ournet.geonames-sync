@@ -41,22 +41,19 @@ export function importPlace(countryCode: string, altNamesFile: string, geoname: 
                 // debug('oldnames', place.names);
             }
             return getWikiDataId(place.id)
-                .then(() => getWikiDataId(place.id)
-                    .then(wikiId => {
-                        if (wikiId) {
-                            place.wikiId = wikiId;
-                        }
-                    })
-                    .catch(e => logger.error(e)))
+                .then(wikiId => {
+                    if (wikiId) {
+                        place.wikiId = wikiId;
+                    }
+                })
+                .catch(e => logger.error(e))
                 .then(() => Data.putPlace(place))
-                .then(() => {
-                    return getGeonameNamesById(altNamesFile, place.id)
-                        .then(geonames => {
-                            debug(`geonames for ${place.id}:`, geonames);
-                            if (geonames && geonames.length) {
-                                return Data.setPlaceAltName(place.id, place.countryCode, geonames);
-                            }
-                        });
+                .then(() => getGeonameNamesById(altNamesFile, place.id))
+                .then(geonames => {
+                    debug(`geonames for ${place.id}:`, geonames);
+                    if (geonames && geonames.length) {
+                        return Data.setPlaceAltName(place.id, place.countryCode, geonames);
+                    }
                 });
         });
 }

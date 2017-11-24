@@ -31,8 +31,6 @@ function importPlaces(countryCode: string, countryFile: string, altNamesFile: st
         let started = false;
         const lineSource = new LineByLineReader(countryFile);
 
-        let closeError: Error;
-
         lineSource.on('line', (line: string) => {
             lineSource.pause();
             const geoname = parseGeoName(line);
@@ -54,18 +52,12 @@ function importPlaces(countryCode: string, countryFile: string, altNamesFile: st
             importPlace(countryCode, altNamesFile, geoname)
                 .then(() => lineSource.resume())
                 .catch((e: Error) => {
-                    closeError = e;
+                    rejectImport(e);
                     lineSource.close();
                 });
         })
             .on('error', rejectImport)
-            .on('end', () => {
-                if (closeError) {
-                    rejectImport(closeError);
-                } else {
-                    resolveImport();
-                }
-            });
+            .on('end', resolveImport);
     })
         .catch((error: Error) => {
             logger.error(countryCode + ' END_PLACE_ID=' + lastPlaceId, { country: countryCode, placeId: lastPlaceId });

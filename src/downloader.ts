@@ -7,7 +7,7 @@ import * as http from 'http';
 // const fse = Promise.promisifyAll(require('fs-extra'));
 const AdmZip = require('adm-zip');
 const TEMP_DIR = path.join(__dirname, '..', 'temp');
-const debug = require('debug')('geonames-sync');
+const debug = require('debug')('ournet-geonames-sync');
 import * as readline from 'readline';
 // const AltNames = require('./altnames');
 import * as rimraf from 'rimraf';
@@ -83,19 +83,33 @@ export function downloadFile(filename: string): Promise<string> {
 }
 
 function getCountryIds(country: string): Promise<number[]> {
-    const file = path.join(TEMP_DIR, country.toUpperCase(), country.toUpperCase() + '.txt');
-    return new Promise((resolve, reject) => {
-        const ids: number[] = [];
+    const countryFile = path.join(TEMP_DIR, country.toLowerCase() + '-ids.txt')
+    return isFileFresh(countryFile).then(isFresh => {
 
-        readline.createInterface({
-            input: fs.createReadStream(file)
-        }).on('line', (line: string) => {
-            if (/^\d+\t/.test(line)) {
-                ids.push(parseInt(line.split(/\t+/)[0]));
-            }
-        }).on('close', () => {
-            resolve(ids);
-        }).on('error', reject);
+        if (isFresh) {
+            logger.info('country ids file is fresh');
+            return fs.readFileSync(countryFile, 'utf8').split(/\t+/g).map(id => parseInt(id));
+        }
+
+        const file = path.join(TEMP_DIR, country.toUpperCase(), country.toUpperCase() + '.txt');
+        try {
+            fs.unlinkSync(countryFile);
+        } catch (e) { logger.warn(e) }
+        logger.info('Creating country ids file');
+        return new Promise<number[]>((resolve, reject) => {
+            const ids: number[] = [];
+
+            readline.createInterface({
+                input: fs.createReadStream(file)
+            }).on('line', (line: string) => {
+                if (/^\d+\t/.test(line)) {
+                    ids.push(parseInt(line.split(/\t+/)[0]));
+                }
+            }).on('close', () => {
+                fs.writeFileSync(countryFile, ids.join('\t'), 'utf8');
+                resolve(ids);
+            }).on('error', reject);
+        });
     });
 }
 
