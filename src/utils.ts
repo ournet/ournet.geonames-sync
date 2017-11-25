@@ -77,8 +77,8 @@ const VALID_PLACE_TYPES: { [name: string]: string[] } = {
 	V: ['FRST', 'GRSLD']
 };
 
-export function isValidPlace(place: { country_code: string, feature_class: string, feature_code: string, admin1_code: string }) {
-	return place && place.admin1_code && place.admin1_code !== '00' && isSupportedCountry(place.country_code) && isValidPlaceType(place);
+export function isValidPlace(place: { country_code: string, feature_class: string, feature_code: string, admin1_code: string, timezone: string }) {
+	return place && place.admin1_code && place.admin1_code !== '00' && isSupportedCountry(place.country_code) && isValidPlaceType(place) && !!place.timezone;
 }
 
 export function isValidPlaceType(place: { feature_class: string, feature_code: string }) {
