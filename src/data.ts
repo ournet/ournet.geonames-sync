@@ -56,6 +56,11 @@ export function setPlaceAltName(id: number, country: string, newnames: GeonameAl
                 .then(function () {
                     debug('Updated place names', { id: place.id, name: place.name, names: place.names });
                     return true;
+                })
+                .catch((e: any) => {
+                    e.place = place;
+                    e.geonames = newnames;
+                    return Promise.reject(e);
                 });
         });
 }
