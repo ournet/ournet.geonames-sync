@@ -21,7 +21,7 @@ export function importCountry(countryCode: string, options?: ImportOptions) {
 
 function importPlaces(countryCode: string, countryFile: string, options: ImportOptions) {
     debug('in importPlaces');
-    let lastPlaceId: number;
+    let lastGeoname: any;
     let totalCount = 0;
 
     return new Promise((resolveImport, rejectImport) => {
@@ -45,7 +45,7 @@ function importPlaces(countryCode: string, countryFile: string, options: ImportO
                     return lineSource.resume();
                 }
             }
-            lastPlaceId = geoname.id;
+            lastGeoname = geoname;
             importPlace(countryCode, geoname)
                 .then(() => {
                     totalCount++;
@@ -64,7 +64,7 @@ function importPlaces(countryCode: string, countryFile: string, options: ImportO
             .on('end', resolveImport);
     })
         .catch((error: Error) => {
-            logger.error(countryCode + ' END_PLACE_ID=' + lastPlaceId, { country: countryCode, placeId: lastPlaceId });
+            logger.error('Geoname error:', lastGeoname);
             return Promise.reject(error);
         });
 }
