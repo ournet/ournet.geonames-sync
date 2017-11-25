@@ -15,6 +15,8 @@ import { parseAltName } from './geonames';
 import { isValidAltName } from './utils';
 import logger from './logger';
 
+export const IN_MEMORY_ALT_NAMES: { [country: string]: { [id: number]: any[] } } = {}
+
 export function downloadCountry(country_code: string) {
     country_code = country_code.toUpperCase();
     return downloadUnzip(country_code).then(file => path.join(file, country_code + '.txt'));
@@ -22,6 +24,40 @@ export function downloadCountry(country_code: string) {
 
 export function downloadAlternateNames() {
     return downloadUnzip('alternateNames').then(file => path.join(file, 'alternateNames.txt'));
+}
+
+export function getCountryAltNames(country: string): Promise<{ [id: number]: any[] }> {
+    logger.info('Start getCountryAltNames');
+    if (IN_MEMORY_ALT_NAMES[country]) {
+        return Promise.resolve(IN_MEMORY_ALT_NAMES[country]);
+    }
+    return downloadAlternateNames()
+        .then(altnamesFile => getCountryIds(country)
+            .then(countryIds => {
+                IN_MEMORY_ALT_NAMES[country] = {};
+                return new Promise<{ [id: number]: any[] }>((resolve, reject) => {
+                    readline.createInterface({
+                        input: fs.createReadStream(altnamesFile)
+                    }).on('line', (line: string) => {
+                        const altName = parseAltName(line);
+                        // if (altName && altName.language && isValidCountryLang(country, altName.language)) {
+                        if (isValidAltName(altName.name, altName.language, country) && countryIds[altName.geonameid]) {
+                            IN_MEMORY_ALT_NAMES[country][altName.geonameid] = IN_MEMORY_ALT_NAMES[country][altName.geonameid] || [];
+                            IN_MEMORY_ALT_NAMES[country][altName.geonameid].push(altName);
+                        }
+                    }).on('close', () => {
+                        resolve(IN_MEMORY_ALT_NAMES[country]);
+                    }).on('error', reject);
+                })
+            })
+        ).then(_ => {
+            logger.info('End getCountryAltNames');
+            return _;
+        });
+}
+
+export function cleanCountryAltName(country: string) {
+    delete IN_MEMORY_ALT_NAMES[country];
 }
 
 export function downloadLangAlternateNames(country: string): Promise<string> {
@@ -43,8 +79,7 @@ export function downloadLangAlternateNames(country: string): Promise<string> {
                             }).on('line', (line: string) => {
                                 const altName = parseAltName(line);
                                 // if (altName && altName.language && isValidCountryLang(country, altName.language)) {
-                                if (isValidAltName(altName.name, altName.language, country)
-                                    && countryIds.indexOf(altName.geonameid) > -1) {
+                                if (isValidAltName(altName.name, altName.language, country) && countryIds[altName.geonameid]) {
                                     output.write(line + '\n', 'utf8')
                                 }
                             }).on('close', () => {
@@ -82,13 +117,13 @@ export function downloadFile(filename: string): Promise<string> {
         }).then(() => file);
 }
 
-function getCountryIds(country: string): Promise<number[]> {
+function getCountryIds(country: string): Promise<{ [id: number]: boolean }> {
     const countryFile = path.join(TEMP_DIR, country.toLowerCase() + '-ids.txt')
     return isFileFresh(countryFile).then(isFresh => {
 
         if (isFresh) {
             logger.info('country ids file is fresh');
-            return fs.readFileSync(countryFile, 'utf8').split(/\t+/g).map(id => parseInt(id));
+            return JSON.parse(fs.readFileSync(countryFile, 'utf8'));
         }
 
         const file = path.join(TEMP_DIR, country.toUpperCase(), country.toUpperCase() + '.txt');
@@ -96,17 +131,17 @@ function getCountryIds(country: string): Promise<number[]> {
             fs.unlinkSync(countryFile);
         } catch (e) { logger.warn(e) }
         logger.info('Creating country ids file');
-        return new Promise<number[]>((resolve, reject) => {
-            const ids: number[] = [];
+        return new Promise<{ [id: number]: boolean }>((resolve, reject) => {
+            const ids: { [id: number]: boolean } = {};
 
             readline.createInterface({
                 input: fs.createReadStream(file)
             }).on('line', (line: string) => {
                 if (/^\d+\t/.test(line)) {
-                    ids.push(parseInt(line.split(/\t+/)[0]));
+                    ids[parseInt(line.split(/\t+/)[0])] = true;
                 }
             }).on('close', () => {
-                fs.writeFileSync(countryFile, ids.join('\t'), 'utf8');
+                fs.writeFileSync(countryFile, JSON.stringify(ids), 'utf8');
                 resolve(ids);
             }).on('error', reject);
         });

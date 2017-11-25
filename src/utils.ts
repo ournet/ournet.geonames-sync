@@ -9,7 +9,7 @@ const SupportedLanguages = ['en', 'es', 'fr', 'de', 'ro', 'ru', 'hu', 'hi', 'pl'
 const COUNTRY_LANGUAGES: { [name: string]: string[] } = {
 	ro: ['en', 'ro', 'hu'],
 	md: ['en', 'ro', 'ru'],
-	ru: ['en', 'ru'],
+	ru: ['ru'],
 	in: ['en', 'hi'],
 	pl: ['en', 'pl'],
 	cz: ['en', 'cs'],

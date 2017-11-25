@@ -3,7 +3,7 @@ const debug = require('debug')('ournet-geonames-sync');
 
 const LineByLineReader = require('line-by-line');
 import { parseGeoName } from './geonames';
-import { downloadCountry, downloadLangAlternateNames } from './downloader';
+import { downloadCountry } from './downloader';
 import logger from './logger';
 import * as Data from './data';
 import { importPlace, ImportPlaceOptions } from './import-place';
@@ -16,14 +16,10 @@ export function importCountry(countryCode: string, options?: ImportOptions) {
     countryCode = countryCode.toLowerCase();
 
     return downloadCountry(countryCode)
-        .then(function (countryFile) {
-            return downloadLangAlternateNames(countryCode).then(altNamesFile => {
-                return Data.init().then(() => importPlaces(countryCode, countryFile, altNamesFile, options));
-            });
-        });
+        .then(countryFile => Data.init().then(() => importPlaces(countryCode, countryFile, options)));
 }
 
-function importPlaces(countryCode: string, countryFile: string, altNamesFile: string, options: ImportOptions) {
+function importPlaces(countryCode: string, countryFile: string, options: ImportOptions) {
     debug('in importPlaces');
     let lastPlaceId: number;
     let totalCount = 0;
@@ -50,7 +46,7 @@ function importPlaces(countryCode: string, countryFile: string, altNamesFile: st
                 }
             }
             lastPlaceId = geoname.id;
-            importPlace(countryCode, altNamesFile, geoname)
+            importPlace(countryCode, geoname)
                 .then(() => {
                     totalCount++;
                     // log every 100

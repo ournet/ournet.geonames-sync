@@ -13,7 +13,7 @@ export interface ImportPlaceOptions {
     placeType?: { [name: string]: string[] }
 }
 
-export function importPlace(countryCode: string, altNamesFile: string, geoname: GeoName, options?: ImportPlaceOptions) {
+export function importPlace(countryCode: string, geoname: GeoName, options?: ImportPlaceOptions) {
     if (geoname.country_code.trim().toLowerCase() !== countryCode) {
         return Promise.resolve();
     }
@@ -48,7 +48,7 @@ export function importPlace(countryCode: string, altNamesFile: string, geoname: 
                 })
                 .catch(e => logger.error(e))
                 .then(() => Data.putPlace(place))
-                .then(() => getGeonameNamesById(altNamesFile, place.id))
+                .then(() => getGeonameNamesById(place.countryCode, place.id))
                 .then(geonames => {
                     debug(`geonames for ${place.id}:`, geonames);
                     if (geonames && geonames.length) {

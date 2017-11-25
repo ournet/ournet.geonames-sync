@@ -2,9 +2,8 @@
 // const debug = require('debug')('geonames-sync');
 
 import logger from './logger';
-import * as readline from 'readline';
-import * as fs from 'fs';
 import { IPlace } from '@ournet/places-domain';
+import { getCountryAltNames } from './downloader';
 
 // exports.stringToList = function (str) {
 //     return (str || '').split(';').map(item => {
@@ -37,25 +36,8 @@ export function mapGeoNamePlace(geoname: GeoName): IPlace {
     return place;
 }
 
-// const NAMES_MAP: { [name: string]: { [id: number]: GeonameAltName[] } } = {};
-
-export function getGeonameNamesById(file: string, geonameid: number): Promise<GeonameAltName[]> {
-    // if (NAMES_MAP[file]) {
-    //     return Promise.resolve(NAMES_MAP[file][geonameid] || []);
-    // }
-    return new Promise((resolve, reject) => {
-        const map: { [id: number]: GeonameAltName[] } = {};
-        readline.createInterface({
-            input: fs.createReadStream(file)
-        }).on('line', line => {
-            const altName = parseAltName(line);
-            map[altName.geonameid] = map[altName.geonameid] || [];
-            map[altName.geonameid].push(altName);
-        }).on('close', () => {
-            // NAMES_MAP[file] = map;
-            resolve(map[geonameid] || []);
-        }).on('error', reject);
-    });
+export function getGeonameNamesById(countryCode: string, geonameid: number): Promise<GeonameAltName[]> {
+    return getCountryAltNames(countryCode).then(data => data[geonameid] || []);
 }
 
 export type GeonameAltName = {
