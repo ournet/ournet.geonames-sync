@@ -4,6 +4,7 @@
 import logger from './logger';
 import { IPlace } from '@ournet/places-domain';
 import { getCountryAltNames } from './downloader';
+const atonic = require('atonic');
 
 // exports.stringToList = function (str) {
 //     return (str || '').split(';').map(item => {
@@ -32,6 +33,10 @@ export function mapGeoNamePlace(geoname: GeoName): IPlace {
     place.longitude = geoname.longitude;
     place.population = geoname.population;
     place.timezone = geoname.timezone;
+
+    if (!place.asciiname) {
+        place.asciiname = atonic(place.name);
+    }
 
     return place;
 }
