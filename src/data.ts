@@ -107,7 +107,11 @@ export function updatePlace(place: IPlace) {
 }
 
 function filterPlaceNames(country: string, names: string) {
-    return PlaceHelpers.parseNames(names).filter(name => /^[a-z]{2}$/.test(name.lang) && isValidAltName(name.name, name.lang, country)).map(name => PlaceHelpers.formatName(name.name, name.lang)).join('|');
+    try {
+        return PlaceHelpers.parseNames(names).filter(name => isValidAltName(name.name, name.lang, country)).map(name => PlaceHelpers.formatName(name.name, name.lang)).join('|');
+    } catch (e) {
+        return PlaceHelpers.parseNames(names.split(/|/g).filter(name => !!name && /\[[a-z]{2}\]$/.test(name)).join('|')).filter(name => isValidAltName(name.name, name.lang, country)).map(name => PlaceHelpers.formatName(name.name, name.lang)).join('|');
+    }
 }
 
 function cleanObject<T extends { [name: string]: any }>(obj: T): T {
