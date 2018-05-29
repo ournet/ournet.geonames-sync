@@ -26,7 +26,7 @@ export class FileImporter<O extends ImportPlaceOptions> {
                     return lineSource.resume();
                 }
 
-                if (!this.isValid(geoname)) {
+                if (!this.isValid(geoname, options)) {
                     return lineSource.resume();
                 }
 

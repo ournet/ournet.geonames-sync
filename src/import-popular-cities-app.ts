@@ -18,7 +18,9 @@ process.on('warning', (warning) => {
     console.warn(warning.stack);   // Print the stack trace
 });
 
-importPupularCities()
+importPupularCities({
+    startId: process.env.START_ID && parseInt(process.env.START_ID)
+})
     .then(function () {
         logger.warn('SUCCESS END IMPORT');
     })
