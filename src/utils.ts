@@ -46,6 +46,11 @@ export function isValidAltName(name: string, lang: string, _country: string) {
 	if (typeof name !== 'string' || name.trim().length < 2) {
 		return false;
 	}
+
+	if (!lang || !/^[a-z]{2}$/.test(lang)) {
+		return false;
+	}
+
 	// if (!isValidCountryLang(country, lang)) {
 	// 	return false;
 	// }
