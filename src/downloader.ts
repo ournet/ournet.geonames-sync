@@ -17,6 +17,11 @@ import logger from './logger';
 
 export const IN_MEMORY_ALT_NAMES: { [country: string]: { [id: number]: any[] } } = {}
 
+export function downloadCities15000() {
+    const name = "cities15000";
+    return downloadUnzip(name).then(file => path.join(file, name + '.txt'));
+}
+
 export function downloadCountry(country_code: string) {
     country_code = country_code.toUpperCase();
     return downloadUnzip(country_code).then(file => path.join(file, country_code + '.txt'));
@@ -131,19 +136,21 @@ function getCountryIds(country: string): Promise<{ [id: number]: boolean }> {
             fs.unlinkSync(countryFile);
         } catch (e) { logger.warn(e) }
         logger.info('Creating country ids file');
-        return new Promise<{ [id: number]: boolean }>((resolve, reject) => {
-            const ids: { [id: number]: boolean } = {};
+        return downloadCountry(country).then(() => {
+            return new Promise<{ [id: number]: boolean }>((resolve, reject) => {
+                const ids: { [id: number]: boolean } = {};
 
-            readline.createInterface({
-                input: fs.createReadStream(file)
-            }).on('line', (line: string) => {
-                if (/^\d+\t/.test(line)) {
-                    ids[parseInt(line.split(/\t+/)[0])] = true;
-                }
-            }).on('close', () => {
-                fs.writeFileSync(countryFile, JSON.stringify(ids), 'utf8');
-                resolve(ids);
-            }).on('error', reject);
+                readline.createInterface({
+                    input: fs.createReadStream(file)
+                }).on('line', (line: string) => {
+                    if (/^\d+\t/.test(line)) {
+                        ids[parseInt(line.split(/\t+/)[0])] = true;
+                    }
+                }).on('close', () => {
+                    fs.writeFileSync(countryFile, JSON.stringify(ids), 'utf8');
+                    resolve(ids);
+                }).on('error', reject);
+            });
         });
     });
 }

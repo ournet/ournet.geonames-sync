@@ -12,7 +12,9 @@
     "tscw": "tsc -w",
     "preversion": "npm run tsc",
     "postversion": "git push --follow-tags",
-    "clean-test-code": "rm -fr ./lib/**/*.test.js"
+    "clean-test-code": "rm -fr ./lib/**/*.test.js",
+    "download-altnames": "node ./lib/downloader-app.js download-altnames",
+    "import-popular-cities": "node ./lib/import-popular-cities-app.js"
   },
   "repository": {
     "type": "git",
