@@ -7,7 +7,7 @@ import { isValidPlace } from './utils';
 import * as Data from './data';
 import { getWikiDataId } from './getWikiDataId';
 import { oldAccess } from './olddata';
-import { IPlace } from '@ournet/places-domain';
+import { Place } from '@ournet/places-domain';
 
 export interface ImportPlaceOptions {
     placeType?: { [name: string]: string[] }
@@ -31,7 +31,7 @@ export function importPlace(countryCode: string, geoname: GeoName, options?: Imp
 
     // debug('importing place', place);
 
-    return oldAccess.place(place.id)
+    return oldAccess.place(parseInt(place.id))
         .then((oldplace: any) => {
             return oldplace && oldplace.alternatenames && oldplace.alternatenames.replace(/;/g, '|');
         })
@@ -58,7 +58,7 @@ export function importPlace(countryCode: string, geoname: GeoName, options?: Imp
         });
 }
 
-function isInOptionsType(place: IPlace, options?: ImportPlaceOptions) {
+function isInOptionsType(place: Place, options?: ImportPlaceOptions) {
     if (options && options.placeType) {
         if (!options.placeType[place.featureClass]
             || options.placeType[place.featureClass].indexOf(place.featureCode) < 0) {

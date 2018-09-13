@@ -19,7 +19,7 @@ process.on('warning', (warning) => {
 });
 
 importPupularCities({
-    startId: process.env.START_ID && parseInt(process.env.START_ID)
+    startId: process.env.START_ID || ''
 })
     .then(function () {
         logger.warn('SUCCESS END IMPORT');

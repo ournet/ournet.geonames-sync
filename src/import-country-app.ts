@@ -77,7 +77,7 @@ if (!isSupportedCountry(country)) {
     throw new Error(`Country ${country} is not supported`);
 }
 
-const startId = process.env.START_ID && parseInt(process.env.START_ID);
+const startId = process.env.START_ID || '';
 
 importCountry(country, { startId: startId })
     .then(function () {

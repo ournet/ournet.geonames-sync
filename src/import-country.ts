@@ -9,7 +9,7 @@ import * as Data from './data';
 import { importPlace, ImportPlaceOptions } from './import-place';
 
 export interface ImportOptions extends ImportPlaceOptions {
-    startId?: number
+    startId?: string
 }
 
 export function importCountry(countryCode: string, options?: ImportOptions) {

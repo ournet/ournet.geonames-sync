@@ -6,7 +6,7 @@ import { ImportPlaceOptions } from "./import-place";
 import { GeoName } from "./geonames";
 
 export interface ImportCitiesOptions extends ImportPlaceOptions {
-    startId?: number
+    startId?: string
 }
 
 export class Cities15000Importer extends FileImporter<ImportCitiesOptions> {

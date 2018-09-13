@@ -1,7 +1,7 @@
 
 import fetch from 'node-fetch';
 
-export function getWikiDataId(geonameId: number): Promise<string> {
+export function getWikiDataId(geonameId: string): Promise<string> {
 
     const query = `select ?item {?item wdt:P1566 "${geonameId}" .}`;
 

@@ -15,7 +15,7 @@ import { parseAltName } from './geonames';
 import { isValidAltName } from './utils';
 import logger from './logger';
 
-export const IN_MEMORY_ALT_NAMES: { [country: string]: { [id: number]: any[] } } = {}
+export const IN_MEMORY_ALT_NAMES: { [country: string]: { [id: string]: any[] } } = {}
 
 export function downloadCities15000() {
     const name = "cities15000";
@@ -31,7 +31,7 @@ export function downloadAlternateNames() {
     return downloadUnzip('alternateNames').then(file => path.join(file, 'alternateNames.txt'));
 }
 
-export function getCountryAltNames(country: string): Promise<{ [id: number]: any[] }> {
+export function getCountryAltNames(country: string): Promise<{ [id: string]: any[] }> {
     logger.info('Start getCountryAltNames');
     if (IN_MEMORY_ALT_NAMES[country]) {
         return Promise.resolve(IN_MEMORY_ALT_NAMES[country]);
@@ -122,7 +122,7 @@ export function downloadFile(filename: string): Promise<string> {
         }).then(() => file);
 }
 
-function getCountryIds(country: string): Promise<{ [id: number]: boolean }> {
+function getCountryIds(country: string): Promise<{ [id: string]: boolean }> {
     const countryFile = path.join(TEMP_DIR, country.toLowerCase() + '-ids.txt')
     return isFileFresh(countryFile).then(isFresh => {
 

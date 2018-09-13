@@ -2,7 +2,7 @@
 // const debug = require('debug')('geonames-sync');
 
 import logger from './logger';
-import { IPlace } from '@ournet/places-domain';
+import { Place } from '@ournet/places-domain';
 import { getCountryAltNames } from './downloader';
 const atonic = require('atonic');
 
@@ -19,20 +19,24 @@ const atonic = require('atonic');
 //     return (list || []).map(item => item.name + '[' + item.language + ']').join(';');
 // }
 
-export function mapGeoNamePlace(geoname: GeoName): IPlace {
-    const place: IPlace = { id: geoname.id, name: geoname.name, asciiname: geoname.asciiname };
-    place.admin1Code = geoname.admin1_code;
-    place.admin2Code = geoname.admin2_code;
-    place.admin3Code = geoname.admin3_code;
-    place.countryCode = geoname.country_code;
-    place.dem = geoname.dem;
-    place.elevation = geoname.elevation;
-    place.featureClass = geoname.feature_class as ('A' | 'H' | 'L' | 'P' | 'R' | 'S' | 'T' | 'U' | 'V');
-    place.featureCode = geoname.feature_code;
-    place.latitude = geoname.latitude;
-    place.longitude = geoname.longitude;
-    place.population = geoname.population;
-    place.timezone = geoname.timezone;
+export function mapGeoNamePlace(geoname: GeoName): Place {
+    const place: Place = {
+        id: geoname.id.toString(),
+        name: geoname.name,
+        asciiname: geoname.asciiname,
+        latitude: geoname.latitude,
+        longitude: geoname.longitude,
+        featureClass: geoname.feature_class as ('A' | 'H' | 'L' | 'P' | 'R' | 'S' | 'T' | 'U' | 'V'),
+        admin1Code: geoname.admin1_code,
+        admin2Code: geoname.admin2_code,
+        admin3Code: geoname.admin3_code,
+        countryCode: geoname.country_code,
+        dem: geoname.dem,
+        elevation: geoname.elevation,
+        featureCode: geoname.feature_code,
+        population: geoname.population,
+        timezone: geoname.timezone,
+    };
 
     if (!place.asciiname) {
         place.asciiname = atonic(place.name);
@@ -41,12 +45,12 @@ export function mapGeoNamePlace(geoname: GeoName): IPlace {
     return place;
 }
 
-export function getGeonameNamesById(countryCode: string, geonameid: number): Promise<GeonameAltName[]> {
+export function getGeonameNamesById(countryCode: string, geonameid: string): Promise<GeonameAltName[]> {
     return getCountryAltNames(countryCode).then(data => data[geonameid] || []);
 }
 
 export type GeonameAltName = {
-    geonameid: number
+    geonameid: string
     name: string
     language: string
     isPreferred: boolean
@@ -59,7 +63,7 @@ export function parseAltName(line: string): GeonameAltName {
     const parts = line.split(/\t/g);
 
     const altName: GeonameAltName = {
-        geonameid: parseInt(parts[1]),
+        geonameid: parts[1],
         language: parts[2] && parts[2].trim().toLowerCase(),
         name: parts[3].trim(),
         isPreferred: parts[4] === '1',
@@ -72,7 +76,7 @@ export function parseAltName(line: string): GeonameAltName {
 }
 
 export type GeoName = {
-    id: number
+    id: string
     name: string
     asciiname: string
     alternatenames: string
@@ -101,7 +105,7 @@ export function parseGeoName(line: string): GeoName {
         return null;
     }
     var geoname: GeoName = {
-        id: parseInt(fields[0]),
+        id: fields[0],
         name: fields[1].trim(),
         asciiname: fields[2].trim(),
         alternatenames: fields[3],
