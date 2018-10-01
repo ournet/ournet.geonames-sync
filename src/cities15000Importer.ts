@@ -1,5 +1,5 @@
 
-const debug = require('debug')('ournet-geonames-sync');
+const debug = require('debug')('ournet:geonames-sync');
 
 import { FileImporter } from "./fileImporter";
 import { ImportPlaceOptions } from "./import-place";

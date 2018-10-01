@@ -7,7 +7,7 @@ import * as http from 'http';
 // const fse = Promise.promisifyAll(require('fs-extra'));
 const AdmZip = require('adm-zip');
 const TEMP_DIR = path.join(__dirname, '..', 'temp');
-const debug = require('debug')('ournet-geonames-sync');
+const debug = require('debug')('ournet:geonames-sync');
 import * as readline from 'readline';
 // const AltNames = require('./altnames');
 import * as rimraf from 'rimraf';

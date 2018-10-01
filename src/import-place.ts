@@ -1,5 +1,5 @@
 
-const debug = require('debug')('ournet-geonames-sync');
+const debug = require('debug')('ournet:geonames-sync');
 
 import { mapGeoNamePlace, getGeonameNamesById, GeoName } from './geonames';
 import logger from './logger';

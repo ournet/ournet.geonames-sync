@@ -1,5 +1,5 @@
 
-const debug = require('debug')('ournet-geonames-sync');
+const debug = require('debug')('ournet:geonames-sync');
 
 import { downloadCities15000 } from './downloader';
 import * as Data from './data';

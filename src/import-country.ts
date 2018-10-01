@@ -1,5 +1,5 @@
 
-const debug = require('debug')('ournet-geonames-sync');
+const debug = require('debug')('ournet:geonames-sync');
 
 const LineByLineReader = require('line-by-line');
 import { parseGeoName } from './geonames';
