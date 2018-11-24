@@ -1,19 +1,20 @@
 
 const debug = require('debug')('ournet:geonames-sync');
 
-import { mapGeoNamePlace, getGeonameNamesById, GeoName } from './geonames';
+import { mapGeoNamePlace, GeoName } from './geonames';
 import logger from './logger';
 import { isValidPlace } from './utils';
 import * as Data from './data';
 import { getWikiDataId } from './getWikiDataId';
 import { oldAccess } from './olddata';
 import { Place } from '@ournet/places-domain';
+import { CountryAltNames } from './country-alt-names';
 
 export interface ImportPlaceOptions {
     placeType?: { [name: string]: string[] }
 }
 
-export function importPlace(countryCode: string, geoname: GeoName, options?: ImportPlaceOptions) {
+export function importPlace(altNames: CountryAltNames, countryCode: string, geoname: GeoName, options?: ImportPlaceOptions) {
     if (geoname.country_code.trim().toLowerCase() !== countryCode) {
         return Promise.resolve();
     }
@@ -48,7 +49,7 @@ export function importPlace(countryCode: string, geoname: GeoName, options?: Imp
                 })
                 .catch(e => logger.error(e))
                 .then(() => Data.putPlace(place))
-                .then(() => getGeonameNamesById(place.countryCode, place.id))
+                .then(() => altNames.geoNameAltNames(place.id))
                 .then(geonames => {
                     debug(`geonames for ${place.id}:`, geonames);
                     if (geonames && geonames.length) {

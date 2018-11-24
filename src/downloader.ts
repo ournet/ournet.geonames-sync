@@ -6,16 +6,12 @@ import * as http from 'http';
 // const fs = Promise.promisifyAll(require('fs'));
 // const fse = Promise.promisifyAll(require('fs-extra'));
 const AdmZip = require('adm-zip');
-const TEMP_DIR = path.join(__dirname, '..', 'temp');
+export const TEMP_DIR = path.join(__dirname, '..', 'temp');
 const debug = require('debug')('ournet:geonames-sync');
 import * as readline from 'readline';
 // const AltNames = require('./altnames');
 import * as rimraf from 'rimraf';
-import { parseAltName } from './geonames';
-import { isValidAltName } from './utils';
 import logger from './logger';
-
-export const IN_MEMORY_ALT_NAMES: { [country: string]: { [id: string]: any[] } } = {}
 
 export function downloadCities15000() {
     const name = "cities15000";
@@ -29,76 +25,6 @@ export function downloadCountry(country_code: string) {
 
 export function downloadAlternateNames() {
     return downloadUnzip('alternateNames').then(file => path.join(file, 'alternateNames.txt'));
-}
-
-export function getCountryAltNames(country: string): Promise<{ [id: string]: any[] }> {
-    logger.info('Start getCountryAltNames');
-    if (IN_MEMORY_ALT_NAMES[country]) {
-        return Promise.resolve(IN_MEMORY_ALT_NAMES[country]);
-    }
-    return downloadAlternateNames()
-        .then(altnamesFile => getCountryIds(country)
-            .then(countryIds => {
-                IN_MEMORY_ALT_NAMES[country] = {};
-                return new Promise<{ [id: number]: any[] }>((resolve, reject) => {
-                    readline.createInterface({
-                        input: fs.createReadStream(altnamesFile)
-                    }).on('line', (line: string) => {
-                        const altName = parseAltName(line);
-                        // if (altName && altName.language && isValidCountryLang(country, altName.language)) {
-                        if (isValidAltName(altName.name, altName.language, country) && countryIds[altName.geonameid]) {
-                            IN_MEMORY_ALT_NAMES[country][altName.geonameid] = IN_MEMORY_ALT_NAMES[country][altName.geonameid] || [];
-                            IN_MEMORY_ALT_NAMES[country][altName.geonameid].push(altName);
-                        }
-                    }).on('close', () => {
-                        resolve(IN_MEMORY_ALT_NAMES[country]);
-                    }).on('error', reject);
-                })
-            })
-        ).then(_ => {
-            logger.info('End getCountryAltNames');
-            return _;
-        });
-}
-
-export function cleanCountryAltName(country: string) {
-    delete IN_MEMORY_ALT_NAMES[country];
-}
-
-export function downloadLangAlternateNames(country: string): Promise<string> {
-    logger.info('Start downloadLangAlternateNames');
-    return downloadAlternateNames()
-        .then(altnamesfile => {
-            const file = path.join(path.dirname(altnamesfile), country + '-langAlternateNames.txt');
-            return isFileFresh(file).then(isFresh => {
-                if (isFresh) {
-                    return file;
-                }
-                return removeFR(file)
-                    .then(() => getCountryIds(country))
-                    .then(countryIds => {
-                        return new Promise((resolve, reject) => {
-                            const output = fs.createWriteStream(file);
-                            readline.createInterface({
-                                input: fs.createReadStream(altnamesfile)
-                            }).on('line', (line: string) => {
-                                const altName = parseAltName(line);
-                                // if (altName && altName.language && isValidCountryLang(country, altName.language)) {
-                                if (isValidAltName(altName.name, altName.language, country) && countryIds[altName.geonameid]) {
-                                    output.write(line + '\n', 'utf8')
-                                }
-                            }).on('close', () => {
-                                output.end();
-                                resolve(file);
-                            }).on('error', reject);
-                        });
-                    });
-            })
-                .then(() => file);
-        }).then(file => {
-            logger.info('End downloadLangAlternateNames');
-            return file;
-        })
 }
 
 export function downloadFile(filename: string): Promise<string> {
@@ -122,7 +48,7 @@ export function downloadFile(filename: string): Promise<string> {
         }).then(() => file);
 }
 
-function getCountryIds(country: string): Promise<{ [id: string]: boolean }> {
+export function getCountryIds(country: string): Promise<{ [id: string]: boolean }> {
     const countryFile = path.join(TEMP_DIR, country.toLowerCase() + '-ids.txt')
     return isFileFresh(countryFile).then(isFresh => {
 
@@ -179,7 +105,7 @@ function downloadUnzip(name: string, hours?: number) {
         });
 }
 
-function isFileFresh(file: string, hours: number = 6) {
+export function isFileFresh(file: string, hours: number = 6) {
     try {
         const stats = fs.statSync(file);
         return Promise.resolve(stats.ctime.getTime() > Date.now() - hours * 60 * 60 * 1000);
@@ -188,7 +114,7 @@ function isFileFresh(file: string, hours: number = 6) {
     }
 }
 
-function removeFR(file: string): Promise<string> {
+export function removeFR(file: string): Promise<string> {
     return new Promise((resolve) => {
         rimraf(file, () => {
             // if (error) {

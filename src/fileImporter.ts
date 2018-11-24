@@ -5,6 +5,7 @@ const LineByLineReader = require('line-by-line');
 import { parseGeoName, GeoName } from './geonames';
 import logger from './logger';
 import { importPlace, ImportPlaceOptions } from './import-place';
+import { CountryAltNames } from './country-alt-names';
 
 export class FileImporter<O extends ImportPlaceOptions> {
     import(file: string, options?: O): Promise<any> {
@@ -31,9 +32,10 @@ export class FileImporter<O extends ImportPlaceOptions> {
                 }
 
                 const countryCode = geoname.country_code.trim().toLowerCase();
+                const altNames = new CountryAltNames(countryCode);
 
                 lastGeoname = geoname;
-                importPlace(countryCode, geoname, options)
+                importPlace(altNames, countryCode, geoname, options)
                     .then(() => {
                         totalCount++;
                         // log every 100
@@ -45,7 +47,7 @@ export class FileImporter<O extends ImportPlaceOptions> {
                     .catch((e: Error) => {
                         rejectImport(e);
                         lineSource.close();
-                    });
+                    }).then(() => altNames.close())
             })
                 .on('error', rejectImport)
                 .on('end', resolveImport);

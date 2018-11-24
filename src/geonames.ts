@@ -3,7 +3,6 @@
 
 import logger from './logger';
 import { Place } from '@ournet/places-domain';
-import { getCountryAltNames } from './downloader';
 const atonic = require('atonic');
 
 // exports.stringToList = function (str) {
@@ -43,10 +42,6 @@ export function mapGeoNamePlace(geoname: GeoName): Place {
     }
 
     return place;
-}
-
-export function getGeonameNamesById(countryCode: string, geonameid: string): Promise<GeonameAltName[]> {
-    return getCountryAltNames(countryCode).then(data => data[geonameid] || []);
 }
 
 export type GeonameAltName = {

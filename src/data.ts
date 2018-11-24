@@ -14,7 +14,7 @@ if (!ES_HOST) {
 }
 
 const dynamoClient = new DynamoDB.DocumentClient();
-const repository = PlaceRepositoryBuilder.build(dynamoClient, ES_HOST);
+const repository = PlaceRepositoryBuilder.build(dynamoClient as any, ES_HOST);
 
 export function init() {
     return repository.createStorage();
