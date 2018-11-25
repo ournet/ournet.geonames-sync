@@ -20,7 +20,7 @@ export function init() {
     return repository.createStorage();
 }
 
-export function setPlaceAltName(id: string, country: string, newnames: GeonameAltName[]) {
+export function setPlaceAltName(id: string, newnames: GeonameAltName[]) {
     if (!newnames) {
         return Promise.resolve(false);
     }
@@ -34,7 +34,7 @@ export function setPlaceAltName(id: string, country: string, newnames: GeonameAl
             const orignames = place.names;
             let nnames = newnames.map(nn => {
                 return { lang: nn.language, name: nn.name, isPreferred: nn.isPreferred }
-            }).filter(name => isValidAltName(name.name, name.lang, country));
+            }).filter(name => isValidAltName(name.name, name.lang));
 
             if (place.names) {
                 debug('names', place.names);
@@ -65,7 +65,7 @@ export function putPlace(place: Place) {
     cleanObject(place);
 
     if (place.names) {
-        place.names = filterPlaceNames(place.countryCode, place.names);
+        place.names = filterPlaceNames(place.names);
         if (!place.names) {
             delete place.names;
         }
@@ -110,7 +110,7 @@ export function putPlace(place: Place) {
 //         });
 // }
 
-function filterPlaceNames(country: string, names: string) {
+function filterPlaceNames(names: string) {
     // let parsedNames: { name: string, lang: string }[];
     try {
         PlaceHelper.parseNames(names);
@@ -119,7 +119,7 @@ function filterPlaceNames(country: string, names: string) {
     }
 
     return PlaceHelper.parseNames(names)
-        .filter(name => isValidAltName(name.name, name.lang, country))
+        .filter(name => isValidAltName(name.name, name.lang))
         .map(name => PlaceHelper.formatName(name.name, name.lang))
         .join('|');
 }

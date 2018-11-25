@@ -42,7 +42,7 @@ export function isSupportedCountry(_country: string) {
 // 	return COUNTRY_LANGUAGES[country] && COUNTRY_LANGUAGES[country].indexOf(lang) > -1;
 // }
 
-export function isValidAltName(name: string, lang: string, _country: string) {
+export function isValidAltName(name: string, lang: string) {
 	if (typeof name !== 'string' || name.trim().length < 2) {
 		return false;
 	}

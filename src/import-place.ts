@@ -8,13 +8,13 @@ import * as Data from './data';
 import { getWikiDataId } from './getWikiDataId';
 import { oldAccess } from './olddata';
 import { Place } from '@ournet/places-domain';
-import { CountryAltNames } from './country-alt-names';
+import { AltNamesDatabase } from './alt-names-db';
 
 export interface ImportPlaceOptions {
     placeType?: { [name: string]: string[] }
 }
 
-export function importPlace(altNames: CountryAltNames, countryCode: string, geoname: GeoName, options?: ImportPlaceOptions) {
+export function importPlace(namesDb: AltNamesDatabase, countryCode: string, geoname: GeoName, options?: ImportPlaceOptions) {
     if (geoname.country_code.trim().toLowerCase() !== countryCode) {
         return Promise.resolve();
     }
@@ -49,11 +49,11 @@ export function importPlace(altNames: CountryAltNames, countryCode: string, geon
                 })
                 .catch(e => logger.error(e))
                 .then(() => Data.putPlace(place))
-                .then(() => altNames.geoNameAltNames(place.id))
+                .then(() => namesDb.geoNameAltNames(place.id))
                 .then(geonames => {
                     debug(`geonames for ${place.id}:`, geonames);
                     if (geonames && geonames.length) {
-                        return Data.setPlaceAltName(place.id, place.countryCode, geonames);
+                        return Data.setPlaceAltName(place.id, geonames);
                     }
                 });
         });

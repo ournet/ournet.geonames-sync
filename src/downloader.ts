@@ -18,6 +18,11 @@ export function downloadCities15000() {
     return downloadUnzip(name).then(file => path.join(file, name + '.txt'));
 }
 
+export function getCountryFileName(country: string) {
+    country = country.toUpperCase();
+    return path.join(TEMP_DIR, country, country + '.txt');
+}
+
 export function downloadCountry(country_code: string) {
     country_code = country_code.toUpperCase();
     return downloadUnzip(country_code).then(file => path.join(file, country_code + '.txt'));

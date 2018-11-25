@@ -1,19 +1,18 @@
 
 import { Database, verbose } from 'sqlite3';
 const sqlite3 = verbose();
-import { TEMP_DIR, getCountryIds, isFileFresh, removeFR } from './downloader';
+import { TEMP_DIR, isFileFresh, removeFR } from './downloader';
 import { join } from 'path';
-import * as readline from 'readline';
-import { createReadStream } from 'fs';
 import { parseAltName, GeonameAltName } from './geonames';
 import { isValidAltName } from './utils';
+import { LineReader } from './line-reader';
 
-export class CountryAltNames {
+export class AltNamesDatabase {
     private db: Database
     private tableName = 'names';
-    constructor(private country: string) {
-        const file = join(TEMP_DIR, `${country}-alt-names.db`);
-        if (!isFileFresh(file, 24 * 14)) {
+    constructor() {
+        const file = join(TEMP_DIR, `alt-names.db`);
+        if (!isFileFresh(file, 24 * 30)) {
             removeFR(file)
         }
         this.db = new sqlite3.Database(file);
@@ -44,34 +43,21 @@ export class CountryAltNames {
         }
         console.log('initing...');
         let id = 1;
-        let countLines = 0;
         let countAdded = 0;
-        await getCountryIds(this.country)
-            .then(countryIds => {
-                return new Promise<void>((resolve, reject) => {
-                    readline.createInterface({
-                        input: createReadStream(join(TEMP_DIR, 'alternateNames', 'alternateNames.txt'))
-                    }).on('line', (line: string) => {
-                        const altName = parseAltName(line);
-                        // if (altName && altName.language && isValidCountryLang(country, altName.language)) {
-                        if (isValidAltName(altName.name, altName.language, this.country) && countryIds[altName.geonameid]) {
-                            countLines++;
-                            this.run(`INSERT INTO ${this.tableName} VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                                [id++, altName.geonameid, altName.name, altName.language, altName.isPreferred === true ? 1 : 0, altName.isShort === true ? 1 : 0, altName.isColloquial === true ? 1 : 0, altName.isHistoric === true ? 1 : 0])
-                                .then(() => countAdded++)
-                                .catch(e => reject(e));
-                        }
-                    }).on('close', () => {
-                        resolve();
-                    }).on('error', reject);
-                })
-            });
 
-        while (countAdded < countLines) {
-            await new Promise(resolve => setTimeout(resolve, 1000 * 1));
-        }
+        const lineReader = new LineReader(join(TEMP_DIR, 'alternateNames', 'alternateNames.txt'));
 
-        console.log('inited!');
+        return lineReader.start(async (line) => {
+            const altName = parseAltName(line);
+            if (isValidAltName(altName.name, altName.language)) {
+                await this.run(`INSERT INTO ${this.tableName} VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [id++, altName.geonameid, altName.name, altName.language, altName.isPreferred === true ? 1 : 0, altName.isShort === true ? 1 : 0, altName.isColloquial === true ? 1 : 0, altName.isHistoric === true ? 1 : 0])
+                countAdded++;
+            }
+            if (countAdded && countAdded % 1000 === 1) {
+                console.log(`added ${countAdded} alt names`, new Date().toISOString())
+            }
+        }).then(() => console.log('inited'))
     }
 
     private async all<T>(sql: string) {
