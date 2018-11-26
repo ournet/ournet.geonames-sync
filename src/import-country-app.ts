@@ -32,7 +32,6 @@ const startId = process.env.START_ID || '';
 const namesDb = new AltNamesDatabase();
 
 async function start() {
-    await namesDb.init()
     await importCountry(namesDb, country, { startId: startId })
 }
 

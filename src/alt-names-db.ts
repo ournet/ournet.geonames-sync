@@ -28,9 +28,9 @@ export class AltNamesDatabase {
     async init() {
         try {
             console.log('creating table')
-            await this.run(`CREATE TABLE ${this.tableName} (id INTEGER, geonameid INTEGER, name TEXT, language TEXT, isPreferred INTEGER, isShort INTEGER, isColloquial INTEGER, isHistoric INTEGER);`)
-            console.log('crating index')
-            await this.run(`CREATE INDEX geonameid_index ON ${this.tableName}(geonameid);`)
+            await this.run(`CREATE TABLE ${this.tableName} (geonameid INTEGER, name TEXT, language TEXT, isPreferred INTEGER, isShort INTEGER, isColloquial INTEGER, isHistoric INTEGER);`)
+            // console.log('crating index')
+            // await this.run(`CREATE INDEX geonameid_index ON ${this.tableName}(geonameid);`)
         } catch (e) {
             console.log(e);
         }
@@ -42,22 +42,53 @@ export class AltNamesDatabase {
             return;
         }
         console.log('initing...');
-        let id = 1;
+        await this.fillDb();
+
+        console.log('crating index')
+        await this.run(`CREATE INDEX geonameid_index ON ${this.tableName}(geonameid);`)
+
+        console.log('inited');
+    }
+
+    private async fillDb() {
         let countAdded = 0;
 
         const lineReader = new LineReader(join(TEMP_DIR, 'alternateNames', 'alternateNames.txt'));
 
-        return lineReader.start(async (line) => {
-            const altName = parseAltName(line);
-            if (isValidAltName(altName.name, altName.language)) {
-                await this.run(`INSERT INTO ${this.tableName} VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [id++, altName.geonameid, altName.name, altName.language, altName.isPreferred === true ? 1 : 0, altName.isShort === true ? 1 : 0, altName.isColloquial === true ? 1 : 0, altName.isHistoric === true ? 1 : 0])
+        let statment = this.db.prepare(`INSERT INTO ${this.tableName} VALUES (?, ?, ?, ?, ?, ?, ?)`);
+
+        await this.parallelize(async () => {
+            await lineReader.start(async (line) => {
+                const altName = parseAltName(line);
+                if (!isValidAltName(altName.name, altName.language)) {
+                    return;
+                }
                 countAdded++;
-            }
-            if (countAdded && countAdded % 1000 === 1) {
-                console.log(`added ${countAdded} alt names`, new Date().toISOString())
-            }
-        }).then(() => console.log('inited'))
+
+                statment.run([altName.geonameid, altName.name, altName.language, altName.isPreferred === true ? 1 : 0, altName.isShort === true ? 1 : 0, altName.isColloquial === true ? 1 : 0, altName.isHistoric === true ? 1 : 0])
+
+                if (countAdded % 1000 === 0) {
+                    console.log(`saving ${countAdded}...`);
+                    await new Promise((resolve, reject) => {
+                        statment.finalize(error => error ? reject(error) : resolve());
+                    });
+                    statment = this.db.prepare(`INSERT INTO ${this.tableName} VALUES (?, ?, ?, ?, ?, ?, ?)`);
+                    console.log(`added ${countAdded} alt names`, new Date().toISOString())
+                }
+            })
+        })
+
+        await new Promise((resolve, reject) => {
+            statment.finalize(error => error ? reject(error) : resolve());
+        });
+    }
+
+    private parallelize(cb: () => Promise<void>) {
+        return new Promise<void>((resolve, reject) => {
+            this.db.parallelize(() => {
+                cb().then(resolve).catch(reject);
+            });
+        })
     }
 
     private async all<T>(sql: string) {

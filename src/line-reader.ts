@@ -11,7 +11,11 @@ export class LineReader {
         return new Promise((resolve, reject) => {
             this.lineSource.on('line', (line: string) => {
                 this.lineSource.pause();
-                cb(line).then(() => this.lineSource.resume())
+                cb(line)
+                    .then(() => this.lineSource.resume())
+                    .catch(e => {
+                        this.lineSource.emit('error', e);
+                    });
             })
                 .on('error', reject)
                 .on('end', resolve);
