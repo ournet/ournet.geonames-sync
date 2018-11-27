@@ -3,44 +3,21 @@ const standardText = require('standard-text') as (text: string) => string;
 
 export { standardText }
 
-// const SupportedCountries = ['md', 'ro', 'ru', 'in', 'pl', 'cz', 'hu', 'it', 'bg', 'al', 'tr'];
-// const SupportedLanguages = ['en', 'es', 'fr', 'de', 'ro', 'ru', 'hu', 'hi', 'pl', 'cs', 'it', 'bg', 'sq', 'tr', 'ku'];
+export const DATA: { [code: string]: string } = require('../valid-languages.json');
+const CODES = Object.keys(DATA);
 
-// const COUNTRY_LANGUAGES: { [name: string]: string[] } = {
-// 	ro: ['en', 'ro', 'hu'],
-// 	md: ['en', 'ro', 'ru'],
-// 	ru: ['ru'],
-// 	in: ['en', 'hi'],
-// 	pl: ['en', 'pl'],
-// 	cz: ['en', 'cs'],
-// 	hu: ['en', 'ro', 'hu'],
-// 	it: ['en', 'it'],
-// 	bg: ['en', 'ro', 'bg'],
-// 	al: ['en', 'sq'],
-// 	tr: ['en', 'tr', 'ku'],
-// 	// by: ['en', 'ru', 'be'],
-// }
+export function getValidLanguageCodes() {
+	return CODES;
+}
 
-// export function countryLanguages(country: string) {
-// 	return COUNTRY_LANGUAGES[country.toLowerCase()];
-// }
+export function isValidLanguage(lang: string) {
+	return CODES.indexOf(lang) > -1;
+}
 
 export function isSupportedCountry(_country: string) {
 	return true;
 	// return SupportedCountries.indexOf(country) >= 0;
 }
-
-// export function supportedLanguages() {
-// 	return SupportedLanguages;
-// }
-
-// export function isSupportedLanguage(lang: string) {
-// 	return SupportedLanguages.indexOf(lang) >= 0;
-// }
-
-// export function isValidCountryLang(country: string, lang: string) {
-// 	return COUNTRY_LANGUAGES[country] && COUNTRY_LANGUAGES[country].indexOf(lang) > -1;
-// }
 
 export function isValidAltName(name: string, lang: string) {
 	if (typeof name !== 'string' || name.trim().length < 2) {
@@ -51,9 +28,9 @@ export function isValidAltName(name: string, lang: string) {
 		return false;
 	}
 
-	// if (!isValidCountryLang(country, lang)) {
-	// 	return false;
-	// }
+	if (!isValidLanguage(lang)) {
+		return false;
+	}
 
 	if (lang === 'ru') {
 		for (var i = name.length - 1; i >= 0; i--) {
