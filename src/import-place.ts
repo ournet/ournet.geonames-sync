@@ -1,11 +1,9 @@
 
-const debug = require('debug')('ournet:geonames-sync');
+// const debug = require('debug')('ournet:geonames-sync');
 
-import { mapGeoNamePlace, GeoName } from './geonames';
-import logger from './logger';
+import { mapGeoNamePlace, GeoName, GeonameAltName } from './geonames';
 import { isValidPlace } from './utils';
 import * as Data from './data';
-import { getWikiDataId } from './getWikiDataId';
 import { oldAccess } from './olddata';
 import { Place } from '@ournet/places-domain';
 import { AltNamesDatabase } from './alt-names-db';
@@ -41,18 +39,11 @@ export function importPlace(namesDb: AltNamesDatabase, countryCode: string, geon
                 place.names = oldnames;
                 // debug('oldnames', place.names);
             }
-            return getWikiDataId(place.id)
-                .then(wikiId => {
-                    if (wikiId) {
-                        place.wikiId = wikiId;
-                    }
-                })
-                .catch(e => logger.error(e))
-                .then(() => Data.putPlace(place))
+            return Data.putPlace(place)
                 .then(() => namesDb.geoNameAltNames(place.id))
-                .then(geonames => {
-                    debug(`geonames for ${place.id}:`, geonames);
+                .then((geonames: GeonameAltName[]) => {
                     if (geonames && geonames.length) {
+                        // debug(`geonames for ${place.id}:`, geonames);
                         return Data.setPlaceAltName(place.id, geonames);
                     }
                 });

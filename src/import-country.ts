@@ -25,8 +25,10 @@ async function importPlaces(namesDb: AltNamesDatabase, countryCode: string) {
 
     return new CountryGeonameReader(countryCode)
         .start(async geoname => {
-            await importPlace(namesDb, countryCode, geoname)
             totalCount++;
+            // if (totalCount > 500000) {
+                await importPlace(namesDb, countryCode, geoname)
+            // }
             // log every 1000
             if (totalCount % 1000 === 0) {
                 logger.warn(`${totalCount} - Importerd place: ${geoname.id}, ${countryCode}, ${new Date().toISOString()}`);

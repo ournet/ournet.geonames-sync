@@ -34,6 +34,9 @@
   },
   "homepage": "https://github.com/Ournet/ournet.geonames-sync#readme",
   "dependencies": {
+    "@ournet/domain": "^0.3.3",
+    "@ournet/places-data": "^0.2.2",
+    "@ournet/places-domain": "^0.2.0",
     "adm-zip": "^0.4.7",
     "atonic": "^1.0.4",
     "aws-sdk": "^2.314.0",
