@@ -6,7 +6,7 @@ import DynamoDB = require('aws-sdk/clients/dynamodb');
 import { Place, PlaceHelper } from '@ournet/places-domain';
 import { PlaceRepositoryBuilder } from '@ournet/places-data';
 import { GeonameAltName } from './geonames';
-import { isValidAltName } from './utils';
+import { isValidAltName, isValidCountryLanguage } from './utils';
 
 const ES_HOST = process.env.PLACES_ES_HOST;
 if (!ES_HOST) {
@@ -34,7 +34,7 @@ export function setPlaceAltName(id: string, newnames: GeonameAltName[]) {
             const orignames = place.names;
             let nnames = newnames.map(nn => {
                 return { lang: nn.language, name: nn.name, isPreferred: nn.isPreferred }
-            }).filter(name => isValidAltName(name.name, name.lang));
+            }).filter(name => isValidAltName(name.name, name.lang) && isValidCountryLanguage(name.lang, place.countryCode));
 
             if (place.names) {
                 debug('names', place.names);
@@ -65,7 +65,7 @@ export function putPlace(place: Place) {
     cleanObject(place);
 
     if (place.names) {
-        place.names = filterPlaceNames(place.names);
+        place.names = filterPlaceNames(place.names, place.countryCode);
         if (!place.names) {
             delete place.names;
         }
@@ -110,7 +110,7 @@ export function putPlace(place: Place) {
 //         });
 // }
 
-function filterPlaceNames(names: string) {
+function filterPlaceNames(names: string, countryCode: string) {
     // let parsedNames: { name: string, lang: string }[];
     try {
         PlaceHelper.parseNames(names);
@@ -119,7 +119,7 @@ function filterPlaceNames(names: string) {
     }
 
     return PlaceHelper.parseNames(names)
-        .filter(name => isValidAltName(name.name, name.lang))
+        .filter(name => isValidAltName(name.name, name.lang) && isValidCountryLanguage(name.lang, countryCode))
         .map(name => PlaceHelper.formatName(name.name, name.lang))
         .join('|');
 }

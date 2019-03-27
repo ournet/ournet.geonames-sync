@@ -1,17 +1,27 @@
+import { uniq } from "@ournet/domain";
 
 const standardText = require('standard-text') as (text: string) => string;
 
 export { standardText }
 
-export const DATA: { [code: string]: string } = require('../valid-languages.json');
-const CODES = Object.keys(DATA);
+export const DATA: { [code: string]: string[] } = require('../valid-languages-by-country.json');
+const LANGUAGES = uniq(Object.keys(DATA).reduce<string[]>((list, cc) => {
+	list.concat(DATA[cc]);
+	return list;
+}, []));
+// const COUNTRIES = Object.keys(DATA);
 
-export function getValidLanguageCodes() {
-	return CODES;
-}
+// export function getValidLanguageCodes() {
+// 	return CODES;
+// }
 
 export function isValidLanguage(lang: string) {
-	return CODES.indexOf(lang) > -1;
+	return LANGUAGES.indexOf(lang) > -1;
+}
+
+export function isValidCountryLanguage(lang: string, country: string) {
+	const codes = DATA[country.trim().toLowerCase()];
+	return codes.indexOf(lang) > -1;
 }
 
 export function isSupportedCountry(_country: string) {
