@@ -1,58 +1,15 @@
 {
-  "kz": [
-    "kk",
-    "ru",
-    "en"
-  ],
-  "ro": [
-    "ro",
-    "en",
-    "hu"
-  ],
-  "md": [
-    "ro",
-    "ru",
-    "en"
-  ],
-  "in": [
-    "en",
-    "hi",
-    "ga"
-  ],
-  "hu": [
-    "hu",
-    "en",
-    "ro"
-  ],
-  "cz": [
-    "cs",
-    "en"
-  ],
-  "pl": [
-    "pl",
-    "en"
-  ],
-  "bg": [
-    "bg",
-    "en"
-  ],
-  "ru": [
-    "ru",
-    "en"
-  ],
-  "lv": [
-    "lv",
-    "en",
-    "lt",
-    "ru"
-  ],
-  "al": [
-    "sq",
-    "en"
-  ],
-  "tr": [
-    "tr",
-    "en",
-    "tt"
-  ]
+  "kz": ["kk", "ru", "en"],
+  "ro": ["ro", "en", "hu"],
+  "md": ["ro", "ru", "en"],
+  "in": ["en", "hi", "ga"],
+  "hu": ["hu", "en", "ro"],
+  "cz": ["cs", "en"],
+  "pl": ["pl", "en"],
+  "bg": ["bg", "en"],
+  "ru": ["ru", "en"],
+  "lv": ["lv", "en", "lt", "ru"],
+  "al": ["sq", "en"],
+  "tr": ["tr", "en", "tt"],
+  "by": ["be", "ru", "en"]
 }
