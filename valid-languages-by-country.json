@@ -11,5 +11,6 @@
   "lv": ["lv", "en", "lt", "ru"],
   "al": ["sq", "en"],
   "tr": ["tr", "en", "tt"],
-  "by": ["be", "ru", "en"]
+  "by": ["be", "ru", "en"],
+  "vn": ["vi", "en"]
 }
