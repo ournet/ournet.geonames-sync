@@ -6,10 +6,10 @@ export { standardText }
 
 export const DATA: { [code: string]: string[] } = require('../valid-languages-by-country.json');
 const LANGUAGES = uniq(Object.keys(DATA).reduce<string[]>((list, cc) => {
-	list.concat(DATA[cc]);
+	list = list.concat(DATA[cc]);
 	return list;
 }, []));
-// const COUNTRIES = Object.keys(DATA);
+const COUNTRIES = Object.keys(DATA);
 
 // export function getValidLanguageCodes() {
 // 	return CODES;
@@ -24,9 +24,8 @@ export function isValidCountryLanguage(lang: string, country: string) {
 	return codes.indexOf(lang) > -1;
 }
 
-export function isSupportedCountry(_country: string) {
-	return true;
-	// return SupportedCountries.indexOf(country) >= 0;
+export function isSupportedCountry(country: string) {
+	return COUNTRIES.indexOf(country) >= 0;
 }
 
 export function isValidAltName(name: string, lang: string) {
