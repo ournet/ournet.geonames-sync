@@ -4,17 +4,18 @@ import * as fs from "fs";
 import * as http from "http";
 // const fs = Promise.promisifyAll(require('fs'));
 // const fse = Promise.promisifyAll(require('fs-extra'));
-const AdmZip = require("adm-zip");
-export const TEMP_DIR = path.join("F:", "temp");
-const debug = require("debug")("ournet:geonames-sync");
 import * as readline from "readline";
 // const AltNames = require('./altnames');
-import * as rimraf from "rimraf";
+import rimraf from "rimraf";
 import logger from "./logger";
+const AdmZip = require("adm-zip");
+const debug = require("debug")("ournet:geonames-sync");
+
+export const TEMP_DIR = path.join("D:", "temp");
 
 export function downloadCities15000() {
   const name = "cities15000";
-  return downloadUnzip(name).then(file => path.join(file, name + ".txt"));
+  return downloadUnzip(name).then((file) => path.join(file, name + ".txt"));
 }
 
 export function getCountryFileName(country: string) {
@@ -24,13 +25,13 @@ export function getCountryFileName(country: string) {
 
 export function downloadCountry(country_code: string) {
   country_code = country_code.toUpperCase();
-  return downloadUnzip(country_code).then(file =>
+  return downloadUnzip(country_code).then((file) =>
     path.join(file, country_code + ".txt")
   );
 }
 
 export function downloadAlternateNames() {
-  return downloadUnzip("alternateNames").then(file =>
+  return downloadUnzip("alternateNames").then((file) =>
     path.join(file, "alternateNames.txt")
   );
 }
@@ -40,17 +41,17 @@ export function downloadFile(filename: string): Promise<string> {
 
   var file = path.join(TEMP_DIR, filename);
   return Promise.all([removeFR(file.replace(/\.\w+$/, "")), removeFR(file)])
-    .then(function() {
+    .then(function () {
       var url = "http://download.geonames.org/export/dump/" + filename;
       debug("downloading url", url);
-      return new Promise(function(resolve, reject) {
+      return new Promise(function (resolve, reject) {
         http
-          .get(url, function(response) {
+          .get(url, function (response) {
             const outFile = fs.createWriteStream(file);
             response.pipe(outFile);
-            outFile.on("finish", function() {
+            outFile.on("finish", function () {
               outFile.close();
-              resolve();
+              resolve(null);
             });
           })
           .on("error", reject);
@@ -63,7 +64,7 @@ export function getCountryIds(
   country: string
 ): Promise<{ [id: string]: boolean }> {
   const countryFile = path.join(TEMP_DIR, country.toLowerCase() + "-ids.txt");
-  return isFileFresh(countryFile).then(isFresh => {
+  return isFileFresh(countryFile).then((isFresh) => {
     if (isFresh) {
       logger.info("country ids file is fresh");
       return JSON.parse(fs.readFileSync(countryFile, "utf8"));
@@ -112,7 +113,7 @@ function unzip(file: string, output: string): Promise<string> {
 function downloadUnzip(name: string, hours?: number) {
   var folderName = path.join(TEMP_DIR, name);
   const zipName = path.join(TEMP_DIR, name + ".zip");
-  return isFileFresh(zipName, hours).then(isFresh => {
+  return isFileFresh(zipName, hours).then((isFresh) => {
     if (isFresh) {
       debug("file is fresh", zipName);
       return Promise.resolve(folderName);
@@ -121,8 +122,8 @@ function downloadUnzip(name: string, hours?: number) {
       removeFR(folderName)
         .then(() => downloadFile(name + ".zip"))
         // .delay(1000 * 2)
-        .then(function() {
-          return unzip(zipName, folderName).then(function() {
+        .then(function () {
+          return unzip(zipName, folderName).then(function () {
             return folderName;
           });
         })
@@ -142,7 +143,7 @@ export function isFileFresh(file: string, hours: number = 6) {
 }
 
 export function removeFR(file: string): Promise<string> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     rimraf(file, () => {
       // if (error) {
       //     return reject(error);

@@ -1,5 +1,4 @@
-import { Database, verbose } from "sqlite3";
-const sqlite3 = verbose();
+import { Database } from "sqlite3";
 import { TEMP_DIR, isFileFresh, removeFR } from "./downloader";
 import { join } from "path";
 import { parseAltName, GeonameAltName } from "./geonames";
@@ -14,14 +13,14 @@ export class AltNamesDatabase {
     if (!isFileFresh(file, 24 * 30)) {
       removeFR(file);
     }
-    this.db = new sqlite3.Database(file);
+    this.db = new Database(file);
   }
 
   async geoNameAltNames(geonameid: string) {
     const sql = `SELECT geonameid, name, language, isColloquial, isHistoric, isPreferred, isShort FROM ${this.tableName} WHERE geonameid=${geonameid}`;
     const names = await this.all<GeonameAltName>(sql);
 
-    return names.map<GeonameAltName>(item => ({
+    return names.map<GeonameAltName>((item) => ({
       geonameid,
       name: item.name,
       language: item.language,
@@ -77,7 +76,7 @@ export class AltNamesDatabase {
     );
 
     await this.parallelize(async () => {
-      await lineReader.start(async line => {
+      await lineReader.start(async (line) => {
         const altName = parseAltName(line);
         if (!isValidAltName(altName.name, altName.language)) {
           return;
@@ -97,7 +96,9 @@ export class AltNamesDatabase {
         if (countAdded % 1000 === 0) {
           console.log(`saving ${countAdded}...`);
           await new Promise((resolve, reject) => {
-            statment.finalize(error => (error ? reject(error) : resolve()));
+            statment.finalize((error) =>
+              error ? reject(error) : resolve(null)
+            );
           });
           statment = this.db.prepare(
             `INSERT INTO ${this.tableName} VALUES (?, ?, ?, ?, ?, ?, ?)`
@@ -111,16 +112,14 @@ export class AltNamesDatabase {
     });
 
     await new Promise((resolve, reject) => {
-      statment.finalize(error => (error ? reject(error) : resolve()));
+      statment.finalize((error) => (error ? reject(error) : resolve(null)));
     });
   }
 
   private parallelize(cb: () => Promise<void>) {
     return new Promise<void>((resolve, reject) => {
       this.db.parallelize(() => {
-        cb()
-          .then(resolve)
-          .catch(reject);
+        cb().then(resolve).catch(reject);
       });
     });
   }
@@ -147,7 +146,7 @@ export class AltNamesDatabase {
   }
   private async run(sql: string, params?: any[]) {
     return await new Promise<void>((resolve, reject) => {
-      this.db.run(sql, params, error => {
+      this.db.run(sql, params, (error) => {
         if (error) {
           return reject(error);
         }
@@ -158,7 +157,7 @@ export class AltNamesDatabase {
 
   async close() {
     await new Promise((resolve, reject) =>
-      this.db.close(error => (error ? reject() : resolve()))
+      this.db.close((error) => (error ? reject() : resolve(null)))
     );
   }
 }

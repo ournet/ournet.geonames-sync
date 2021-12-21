@@ -63,12 +63,33 @@ export function isValidAltName(name: string, lang: string) {
     return false;
   }
 
+  // if (lang === "sr") {
+  //   for (const ch of name) {
+  //     if (isSerbianChar(ch)) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
+
   return true;
 }
 
 // export function isValidPlace(place) {
 // 	return (~SupportedCountries.indexOf(place.country_code.toLowerCase())) && (place.feature_class === 'P' || place.feature_class === 'A' && place.feature_code === 'ADM1');
 // };
+
+export function isSerbianChar(ch: string) {
+  return (
+    (ch >= "а" && ch <= "ш") ||
+    (ch >= "А" && ch <= "Ш") ||
+    [
+      1057, 1088, 1087, 1089, 1082, 1080, 1112, 1077, 1079, 1080, 1082, 1082,
+      1072, 1088, 1072, 1082, 1090, 1077, 1088, 1080, 1089, 1090, 1080, 1095,
+      1085, 1072
+    ].includes(ch.charCodeAt(0))
+  );
+}
 
 export function isRussianChar(ch: string) {
   return (ch >= "а" && ch <= "я") || (ch >= "А" && ch <= "Я");

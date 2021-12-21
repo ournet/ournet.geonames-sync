@@ -3,7 +3,6 @@
 import { mapGeoNamePlace, GeoName, GeonameAltName } from "./geonames";
 import { isValidPlace } from "./utils";
 import * as Data from "./data";
-import { oldAccess } from "./olddata";
 import { Place } from "@ournet/places-domain";
 import { AltNamesDatabase } from "./alt-names-db";
 
@@ -34,28 +33,13 @@ export function importPlace(
 
   // debug('importing place', place);
 
-  return oldAccess
-    .place(parseInt(place.id))
-    .then((oldplace: any) => {
-      return (
-        oldplace &&
-        oldplace.alternatenames &&
-        oldplace.alternatenames.replace(/;/g, "|")
-      );
-    })
-    .then((oldnames: string) => {
-      if (oldnames) {
-        place.names = oldnames;
-        // debug('oldnames', place.names);
+  return Data.putPlace(place)
+    .then(() => namesDb.geoNameAltNames(place.id))
+    .then((geonames: GeonameAltName[]) => {
+      if (geonames && geonames.length) {
+        // debug(`geonames for ${place.id}:`, geonames);
+        return Data.setPlaceAltName(place.id, geonames);
       }
-      return Data.putPlace(place)
-        .then(() => namesDb.geoNameAltNames(place.id))
-        .then((geonames: GeonameAltName[]) => {
-          if (geonames && geonames.length) {
-            // debug(`geonames for ${place.id}:`, geonames);
-            return Data.setPlaceAltName(place.id, geonames);
-          }
-        });
     });
 }
 

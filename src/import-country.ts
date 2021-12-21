@@ -45,7 +45,7 @@ async function importPlaces(
     // log every 1000
     if (totalCount % 1000 === 0) {
       logger.warn(
-        `${totalCount} - Importerd place: ${
+        `${totalCount} - Imported place: ${
           geoname.id
         }, ${countryCode}, ${new Date().toISOString()}`
       );

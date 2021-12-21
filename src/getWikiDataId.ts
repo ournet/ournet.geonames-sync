@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-export function getWikiDataId(geonameId: string): Promise<string> {
+export function getWikiDataId(geonameId: string): Promise<string | null> {
   const query = `select ?item {?item wdt:P1566 "${geonameId}" .}`;
 
   return fetch(
@@ -10,9 +10,9 @@ export function getWikiDataId(geonameId: string): Promise<string> {
       method: "GET"
     }
   )
-    .then(response => response.json())
+    .then((response) => response.json())
     .then(
-      json =>
+      (json) =>
         json &&
         json.results &&
         json.results.bindings &&
@@ -22,7 +22,7 @@ export function getWikiDataId(geonameId: string): Promise<string> {
           ""
         )
     )
-    .then(result => {
+    .then((result) => {
       if (typeof result === "string" && /^Q\d+$/.test(result)) {
         return result;
       }

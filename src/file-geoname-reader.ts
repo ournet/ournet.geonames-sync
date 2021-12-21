@@ -11,14 +11,10 @@ export class FileGeonameReader {
   }
 
   start(cb: (geoname: GeoName) => Promise<void>) {
-    return this.reader.start(async line => {
+    return this.reader.start(async (line) => {
       const geoname = parseGeoName(line);
-      if (!geoname) {
-        logger.warn("No geoname", {
-          line: line
-        });
-      }
-      await cb(geoname);
+      if (!geoname) logger.warn("No geoname", { line });
+      else await cb(geoname);
     });
   }
 }

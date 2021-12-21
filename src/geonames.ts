@@ -98,7 +98,7 @@ export type GeoName = {
   modification_date: string;
 };
 
-export function parseGeoName(line: string): GeoName {
+export function parseGeoName(line: string): GeoName | null {
   if (!line) {
     return null;
   }
@@ -121,7 +121,7 @@ export function parseGeoName(line: string): GeoName {
     admin2_code: fields[11],
     admin3_code: fields[12],
     population: parseInt(fields[14]) || 0,
-    elevation: parseInt(fields[15]) || null,
+    elevation: parseInt(fields[15]) || 0,
     dem: parseInt(fields[16]),
     timezone: fields[17],
     modification_date: fields[18]

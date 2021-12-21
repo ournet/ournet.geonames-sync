@@ -19,63 +19,64 @@ export function init() {
   return repository.createStorage();
 }
 
-export function setPlaceAltName(id: string, newnames: GeonameAltName[]) {
-  if (!newnames) {
+export async function setPlaceAltName(
+  id: string,
+  newnames: GeonameAltName[]
+): Promise<boolean> {
+  if (!newnames) return false;
+
+  const place = await repository.getById(id);
+
+  if (!place) {
     return Promise.resolve(false);
   }
+  //console.log('got place');
+  const orignames = place.names;
+  let nnames = newnames
+    .map((nn) => {
+      return {
+        lang: nn.language,
+        name: nn.name,
+        isPreferred: nn.isPreferred
+      };
+    })
+    .filter(
+      (name) =>
+        isValidAltName(name.name, name.lang) &&
+        isValidCountryLanguage(name.lang, place.countryCode)
+    );
 
-  return repository.getById(id).then((place: Place) => {
-    if (!place) {
-      return Promise.resolve(false);
-    }
-    //console.log('got place');
-    const orignames = place.names;
-    let nnames = newnames
-      .map(nn => {
-        return {
-          lang: nn.language,
-          name: nn.name,
-          isPreferred: nn.isPreferred
-        };
-      })
-      .filter(
-        name =>
-          isValidAltName(name.name, name.lang) &&
-          isValidCountryLanguage(name.lang, place.countryCode)
-      );
+  if (place.names) {
+    debug("names", place.names);
+    const oldNames = PlaceHelper.parseNames(place.names).map((n) => {
+      return { name: n.name, lang: n.lang, isPreferred: false };
+    });
+    nnames = oldNames.concat(nnames);
+  }
+  place.names = PlaceHelper.formatNames(nnames);
+  // console.log('from', orignames, ' > ', place.alternatenames);
+  if (place.names.length < 1 || place.names === orignames) {
+    debug("names not chenged: " + place.names);
+    return false;
+  }
 
-    if (place.names) {
-      debug("names", place.names);
-      const oldNames = PlaceHelper.parseNames(place.names).map(n => {
-        return { name: n.name, lang: n.lang, isPreferred: false };
+  return putPlace(place)
+    .then(function () {
+      debug("Updated place names", {
+        id: place.id,
+        name: place.name,
+        names: place.names
       });
-      nnames = oldNames.concat(nnames);
-    }
-    place.names = PlaceHelper.formatNames(nnames);
-    // console.log('from', orignames, ' > ', place.alternatenames);
-    if (place.names.length < 1 || place.names === orignames) {
-      debug("names not chenged: " + place.names);
-      return Promise.resolve(false);
-    }
-    //console.log('updating place');
-    return putPlace(place)
-      .then(function() {
-        debug("Updated place names", {
-          id: place.id,
-          name: place.name,
-          names: place.names
-        });
-        return true;
-      })
-      .catch((e: any) => {
-        e.place = place;
-        e.geonames = newnames;
-        return Promise.reject(e);
-      });
-  });
+      return true;
+    })
+    .catch((e: any) => {
+      e.place = place;
+      e.geonames = newnames;
+      return Promise.reject(e);
+    });
 }
 
-export function putPlace(place: Place) {
+export async function putPlace(place: Place) {
   cleanObject(place);
 
   if (place.names) {
@@ -85,16 +86,16 @@ export function putPlace(place: Place) {
     }
   }
 
-  debug("putting place", place);
+  // debug("putting place", place);
   return repository
     .getById(place.id)
-    .then((dbPlace: Place) => {
+    .then((dbPlace) => {
       if (dbPlace) {
-        return repository.delete(place.id).catch(e => logger.warn(e.message));
+        return repository.delete(place.id).catch((e) => logger.warn(e.message));
       }
     })
     .then(() => repository.create(place))
-    .then(function(dbPlace: Place) {
+    .then(function (dbPlace: Place) {
       debug("Put place", place.id, place.name, place.countryCode);
       return dbPlace;
     });
@@ -132,22 +133,22 @@ function filterPlaceNames(names: string, countryCode: string) {
   } catch (e) {
     names = names
       .split(/\|/g)
-      .filter(name => !!name && /\[[a-z]{2}\]$/.test(name))
+      .filter((name) => !!name && /\[[a-z]{2}\]$/.test(name))
       .join("|");
   }
 
   return PlaceHelper.parseNames(names)
     .filter(
-      name =>
+      (name) =>
         isValidAltName(name.name, name.lang) &&
         isValidCountryLanguage(name.lang, countryCode)
     )
-    .map(name => PlaceHelper.formatName(name.name, name.lang))
+    .map((name) => PlaceHelper.formatName(name.name, name.lang))
     .join("|");
 }
 
 function cleanObject<T extends { [name: string]: any }>(obj: T): T {
-  Object.keys(obj).forEach(function(prop) {
+  Object.keys(obj).forEach(function (prop) {
     var value = obj[prop];
     if (
       value === null ||
