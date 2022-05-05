@@ -11,7 +11,7 @@ import logger from "./logger";
 const AdmZip = require("adm-zip");
 const debug = require("debug")("ournet:geonames-sync");
 
-export const TEMP_DIR = path.join("D:", "temp");
+export const TEMP_DIR = path.join(__dirname, "../temp");
 
 export function downloadCities15000() {
   const name = "cities15000";

@@ -41,10 +41,6 @@ export function isValidAltName(name: string, lang: string) {
     return false;
   }
 
-  if (!isValidLanguage(lang)) {
-    return false;
-  }
-
   if (lang === "ru") {
     for (const ch of name) {
       if (isRussianChar(ch)) {
@@ -183,3 +179,6 @@ export function isValidPlaceType(place: {
       VALID_PLACE_TYPES[place.feature_class].indexOf(place.feature_code) >= 0)
   );
 }
+
+export const delay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));

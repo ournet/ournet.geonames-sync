@@ -78,16 +78,16 @@
     joi "^14.0.3"
     normalize-url "^3.2.0"
 
-"@ournet/places-data@^0.2.4":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@ournet/places-data/-/places-data-0.2.4.tgz#f0e8f37782130844448ed6b85f6466099199060d"
-  integrity sha512-fb62WKkLo7Moq1hzjcHYQFsoJ+l0s1yNC9EC4Iyy2vZ0oW1uVxMNt2qHPMyjAxzu9QJFqqpmFnZnGW6pkXwB1A==
+"@ournet/places-data@^0.2.7":
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/@ournet/places-data/-/places-data-0.2.7.tgz#313c3ddf86ddc8c92c88bfa57636af8d77c57196"
+  integrity sha512-gkEzZyUP9qjVk3ajSYb+kDHUEzXfEnpbQsXhjhLfE9D1BV/G2N2vxVLpYwAJnHT8060gk+4hzuoOdciahnhpag==
   dependencies:
     "@ournet/domain" "^0.3.3"
     "@ournet/places-domain" "^0.2.0"
-    aws-sdk "^2.354.0"
+    aws-sdk "^2.1058.0"
     dynamo-item "^0.1.1"
-    elasticsearch "^15.2.0"
+    elasticsearch "^16.7.2"
 
 "@ournet/places-domain@^0.2.0":
   version "0.2.0"
@@ -533,6 +533,21 @@ aws-sdk@*, aws-sdk@^2.286.2, aws-sdk@^2.354.0, aws-sdk@^2.814.0:
     events "1.1.1"
     ieee754 "1.1.13"
     jmespath "0.15.0"
+    querystring "0.2.0"
+    sax "1.2.1"
+    url "0.10.3"
+    uuid "3.3.2"
+    xml2js "0.4.19"
+
+aws-sdk@^2.1058.0:
+  version "2.1128.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1128.0.tgz#1d8762d8124a3ca1d5ee01c3da063fa6cf72381e"
+  integrity sha512-A3YjMQHDtV4mXf35m8zlM+nsVq5KfyKeiXrEMG7Bdlucuxl7aPdKEmYrPQLw9ZyhYY/x4o08pPuTr/stJaVGeg==
+  dependencies:
+    buffer "4.9.2"
+    events "1.1.1"
+    ieee754 "1.1.13"
+    jmespath "0.16.0"
     querystring "0.2.0"
     sax "1.2.1"
     url "0.10.3"
@@ -1428,10 +1443,10 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
 
-elasticsearch@^15.2.0:
-  version "15.3.0"
-  resolved "https://registry.yarnpkg.com/elasticsearch/-/elasticsearch-15.3.0.tgz#7a478d23e8af02b60fd03201f1c65fd5657bf7d3"
-  integrity sha512-anZpNB65mqr0aKAN/YPR5OFmD09KnbxBxzyc5vINkip6ECpyCSvBqCKbQNNY/FNwKop2urkRmtnU2sY5cVw1cw==
+elasticsearch@^16.7.2:
+  version "16.7.3"
+  resolved "https://registry.yarnpkg.com/elasticsearch/-/elasticsearch-16.7.3.tgz#bf0e1cc129ab2e0f06911953a1b1f3c740715fab"
+  integrity sha512-e9kUNhwnIlu47fGAr4W6yZJbkpsgQJB0TqNK8rCANe1J4P65B1sGnbCFTgcKY3/dRgCWnuP1AJ4obvzW604xEQ==
   dependencies:
     agentkeepalive "^3.4.1"
     chalk "^1.0.0"
@@ -2308,6 +2323,11 @@ jmespath@0.15.0:
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
+
+jmespath@0.16.0:
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.16.0.tgz#b15b0a85dfd4d930d43e69ed605943c802785076"
+  integrity sha512-9FzQjJ7MATs1tSpnco1K6ayiYE3figslrXA72G2HQ/n76RzvYlofyi5QM+iX4YRs/pu3yzxlVQSST23+dMDknw==
 
 joi@^14.0.3, joi@^14.0.6:
   version "14.3.1"

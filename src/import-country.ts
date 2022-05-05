@@ -19,29 +19,26 @@ export function importCountry(
   countryCode = countryCode.toLowerCase();
 
   return downloadCountry(countryCode).then(() =>
-    Data.init().then(() =>
-      importPlaces(namesDb, countryCode, options && options.startId)
-    )
+    Data.init().then(() => importPlaces(namesDb, countryCode, options))
   );
 }
 
 async function importPlaces(
   namesDb: AltNamesDatabase,
   countryCode: string,
-  startId?: string
+  options: ImportOptions = {}
 ) {
-  debug("in importPlaces");
+  debug("in importPlaces", countryCode, options);
   let totalCount = 0;
-  let started = !startId;
+  let started = !options.startId;
 
-  return new CountryGeonameReader(countryCode).start(async geoname => {
+  return new CountryGeonameReader(countryCode).start(async (geoname) => {
     totalCount++;
-    if (!started && startId === geoname.id) {
+    if (!started && options.startId === geoname.id) {
       started = true;
     }
-    if (started) {
-      await importPlace(namesDb, countryCode, geoname);
-    }
+    if (started) await importPlace(namesDb, countryCode, geoname, options);
+
     // log every 1000
     if (totalCount % 1000 === 0) {
       logger.warn(

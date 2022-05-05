@@ -1,36 +1,37 @@
 require("dotenv").load();
 
-import { isSupportedCountry } from "./utils";
 import logger from "./logger";
 import { importCountry } from "./import-country";
 import { AltNamesDatabase } from "./alt-names-db";
+import { delay } from "./utils";
 
-process.on("uncaughtException", function (err) {
-  logger.error("uncaughtException: " + err.message, err);
-});
+const input_country = process.env.COUNTRY || "";
+logger.warn("start import country", input_country);
+if (!input_country)
+  throw new Error(`Country ${input_country} is not supported`);
 
-process.on("unhandledRejection", (reason, p) => {
-  console.log("Unhandled Rejection at:", p, "reason:", reason);
-});
+const countries = input_country.split(/[,;]/g).filter((c) => !!c.trim());
 
-process.on("warning", (warning) => {
-  console.warn(warning.name); // Print the warning name
-  console.warn(warning.message); // Print the warning message
-  console.warn(warning.stack); // Print the stack trace
-});
+const placeType = ["true", "1", "True", "yes"].includes(
+  process.env.IMPORTANT_ONLY || ""
+)
+  ? {
+      P: ["PPLC", "PPLA", "ADM1", "ADM2", "PCLI"],
+      A: ["ADM1", "ADM2", "PCLI"]
+    }
+  : null;
 
-const country = process.env.COUNTRY || "";
-logger.warn("start import country", country);
-if (!isSupportedCountry(country)) {
-  throw new Error(`Country ${country} is not supported`);
-}
-
-const startId = process.env.START_ID || "";
+const startId = process.env.START_ID;
 
 const namesDb = new AltNamesDatabase();
 
 async function start() {
-  await importCountry(namesDb, country, { startId: startId });
+  for (const country of countries) {
+    logger.warn("IMPORTING", country);
+    await importCountry(namesDb, country, { startId, placeType });
+    if (countries.length > 1) delay(1000 * 3);
+    logger.warn("SUCCESS END IMPORT", country);
+  }
 }
 
 start()
@@ -38,6 +39,6 @@ start()
     logger.warn("SUCCESS END IMPORT");
   })
   .catch(function (error) {
-    logger.error("ERROR END IMPORT: " + country, error);
+    logger.error("ERROR END IMPORT: " + input_country, error);
   })
   .then(() => namesDb.close());

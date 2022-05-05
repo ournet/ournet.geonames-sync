@@ -4,7 +4,7 @@
   "description": "Sync ournet places",
   "private": true,
   "scripts": {
-    "import-country": "npm run tsc && node ./lib/import-country-app.js",
+    "import-country": "node ./lib/import-country-app.js",
     "pretest": "npm run tsc",
     "test": "ava --no-cache --verbose --serial lib/**/*.test.js",
     "posttest": "npm run clean-test-code",
@@ -14,7 +14,6 @@
     "postversion": "git push --follow-tags",
     "clean-test-code": "rm -fr ./lib/**/*.test.js",
     "download-altnames": "node ./lib/downloader-app.js download-altnames",
-    "import-popular-cities": "node ./lib/import-popular-cities-app.js",
     "create-alt-names": "node ./lib/create-alt-names-db.js"
   },
   "repository": {
@@ -35,7 +34,7 @@
   "homepage": "https://github.com/Ournet/ournet.geonames-sync#readme",
   "dependencies": {
     "@ournet/domain": "^0.3.5",
-    "@ournet/places-data": "^0.2.4",
+    "@ournet/places-data": "^0.2.7",
     "@ournet/places-domain": "^0.2.0",
     "adm-zip": "^0.4.7",
     "atonic": "^1.0.4",

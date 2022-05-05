@@ -12,7 +12,7 @@ export function getWikiDataId(geonameId: string): Promise<string | null> {
   )
     .then((response) => response.json())
     .then(
-      (json) =>
+      (json: any) =>
         json &&
         json.results &&
         json.results.bindings &&

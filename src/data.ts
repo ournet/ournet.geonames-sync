@@ -30,9 +30,8 @@ export async function setPlaceAltName(
 
   const place = await repository.getById(id);
 
-  if (!place) {
-    return Promise.resolve(false);
-  }
+  if (!place) return Promise.resolve(false);
+
   //console.log('got place');
   const orignames = place.names;
   let nnames = newnames
@@ -94,7 +93,7 @@ export async function putPlace(place: Place) {
     }
   }
 
-  // debug("putting place", place);
+  debug("putting place", place);
   return repository
     .getById(place.id)
     .then((dbPlace) => {
