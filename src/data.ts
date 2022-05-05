@@ -19,6 +19,9 @@ export function init() {
   return repository.createStorage();
 }
 
+const isImportantPlace = (featureCode: string) =>
+  ["PPLC", "PPLA", "PPLA2", "ADM1", "ADM2", "PCLI"].includes(featureCode);
+
 export async function setPlaceAltName(
   id: string,
   newnames: GeonameAltName[]
@@ -43,7 +46,8 @@ export async function setPlaceAltName(
     .filter(
       (name) =>
         isValidAltName(name.name, name.lang) &&
-        isValidCountryLanguage(name.lang, place.countryCode)
+        (isImportantPlace(place.featureCode) ||
+          isValidCountryLanguage(name.lang, place.countryCode))
     );
 
   if (place.names) {
@@ -80,7 +84,11 @@ export async function putPlace(place: Place) {
   cleanObject(place);
 
   if (place.names) {
-    place.names = filterPlaceNames(place.names, place.countryCode);
+    place.names = filterPlaceNames(
+      place.names,
+      place.countryCode,
+      place.featureCode
+    );
     if (!place.names) {
       delete place.names;
     }
@@ -126,7 +134,11 @@ export async function putPlace(place: Place) {
 //         });
 // }
 
-function filterPlaceNames(names: string, countryCode: string) {
+function filterPlaceNames(
+  names: string,
+  countryCode: string,
+  featureCode: string
+) {
   // let parsedNames: { name: string, lang: string }[];
   try {
     PlaceHelper.parseNames(names);
@@ -141,7 +153,8 @@ function filterPlaceNames(names: string, countryCode: string) {
     .filter(
       (name) =>
         isValidAltName(name.name, name.lang) &&
-        isValidCountryLanguage(name.lang, countryCode)
+        (isImportantPlace(featureCode) ||
+          isValidCountryLanguage(name.lang, countryCode))
     )
     .map((name) => PlaceHelper.formatName(name.name, name.lang))
     .join("|");
