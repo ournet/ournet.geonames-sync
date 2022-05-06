@@ -45,7 +45,7 @@
     "node-fetch": "^3.1.1",
     "ournet.logger": "^0.1.0",
     "rimraf": "^2.6.2",
-    "sqlite3": "^5.0.2",
+    "sqlite3": "^5.0.3",
     "standard-text": "^0.1.1"
   },
   "devDependencies": {
