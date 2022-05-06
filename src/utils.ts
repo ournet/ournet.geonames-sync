@@ -32,7 +32,11 @@ export function isSupportedCountry(country: string) {
   return COUNTRIES.indexOf(country) >= 0;
 }
 
-export function isValidAltName(name: string, lang: string) {
+export function isValidAltName(
+  name: string,
+  lang: string,
+  featureCode?: string
+) {
   if (typeof name !== "string" || name.trim().length < 2) {
     return false;
   }
@@ -57,6 +61,18 @@ export function isValidAltName(name: string, lang: string) {
       }
     }
     return false;
+  }
+
+  if (featureCode === "PPLA") {
+    if (name.startsWith("Raionul ")) return false;
+  }
+
+  if (["ro", "en", "fr", "de", "it", "es", "pt", "pl"].includes(lang)) {
+    for (const ch of name) {
+      if (isRussianChar(ch)) {
+        return false;
+      }
+    }
   }
 
   // if (lang === "sr") {

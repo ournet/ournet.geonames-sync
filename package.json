@@ -14,7 +14,7 @@
     "postversion": "git push --follow-tags",
     "clean-test-code": "rm -fr ./lib/**/*.test.js",
     "download-altnames": "node ./lib/downloader-app.js download-altnames",
-    "create-alt-names": "node ./lib/create-alt-names-db.js"
+    "create-altnames": "node ./lib/create-alt-names-db.js"
   },
   "repository": {
     "type": "git",

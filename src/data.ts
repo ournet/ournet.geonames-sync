@@ -44,7 +44,7 @@ export async function setPlaceAltName(
     })
     .filter(
       (name) =>
-        isValidAltName(name.name, name.lang) &&
+        isValidAltName(name.name, name.lang, place.featureCode) &&
         (isImportantPlace(place.featureCode) ||
           isValidCountryLanguage(name.lang, place.countryCode))
     );

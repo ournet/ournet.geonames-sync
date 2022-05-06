@@ -12,14 +12,17 @@ if (!input_country)
 
 const countries = input_country.split(/[,;]/g).filter((c) => !!c.trim());
 
-const placeType = ["true", "1", "True", "yes"].includes(
+const [placeType, population] = ["true", "1", "True", "yes"].includes(
   process.env.IMPORTANT_ONLY || ""
 )
-  ? {
-      P: ["PPLC", "PPLA", "ADM1", "ADM2", "PCLI"],
-      A: ["ADM1", "ADM2", "PCLI"]
-    }
-  : null;
+  ? [
+      {
+        P: ["PPLC", "PPLA", "ADM1", "ADM2", "PCLI"],
+        A: ["ADM1", "ADM2", "PCLI"]
+      },
+      500000
+    ]
+  : [];
 
 const startId = process.env.START_ID;
 
@@ -28,7 +31,7 @@ const namesDb = new AltNamesDatabase();
 async function start() {
   for (const country of countries) {
     logger.warn("IMPORTING", country);
-    await importCountry(namesDb, country, { startId, placeType });
+    await importCountry(namesDb, country, { startId, placeType, population });
     if (countries.length > 1) delay(1000 * 3);
     logger.warn("SUCCESS END IMPORT", country);
   }
