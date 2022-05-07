@@ -6,6 +6,7 @@ import { Place, PlaceHelper } from "@ournet/places-domain";
 import { PlaceRepositoryBuilder } from "@ournet/places-data";
 import { GeonameAltName } from "./geonames";
 import { isValidAltName, isValidCountryLanguage } from "./utils";
+import { PlaceFeatureClassType } from "@ournet/places-domain/lib/entities/place";
 
 const ES_HOST = process.env.PLACES_ES_HOST;
 if (!ES_HOST) {
@@ -19,8 +20,13 @@ export function init() {
   return repository.createStorage();
 }
 
-const isImportantPlace = (featureCode: string) =>
-  ["PPLC", "PPLA", "PPLA2", "ADM1", "ADM2", "PCLI"].includes(featureCode);
+const isImportantPlace = ({
+  featureCode,
+  population,
+  featureClass
+}: Pick<Place, "featureClass" | "featureCode" | "population">) =>
+  ["PPLC", "PPLA", "PPLA2", "ADM1", "ADM2", "PCLI"].includes(featureCode) ||
+  (featureClass === "P" && population && population > 250_000);
 
 export async function setPlaceAltName(
   id: string,
@@ -45,7 +51,7 @@ export async function setPlaceAltName(
     .filter(
       (name) =>
         isValidAltName(name.name, name.lang, place.featureCode) &&
-        (isImportantPlace(place.featureCode) ||
+        (isImportantPlace(place) ||
           isValidCountryLanguage(name.lang, place.countryCode))
     );
 
@@ -86,7 +92,9 @@ export async function putPlace(place: Place) {
     place.names = filterPlaceNames(
       place.names,
       place.countryCode,
-      place.featureCode
+      place.featureCode,
+      place.featureClass,
+      place.population
     );
     if (!place.names) {
       delete place.names;
@@ -136,7 +144,9 @@ export async function putPlace(place: Place) {
 function filterPlaceNames(
   names: string,
   countryCode: string,
-  featureCode: string
+  featureCode: string,
+  featureClass: PlaceFeatureClassType,
+  population?: number
 ) {
   // let parsedNames: { name: string, lang: string }[];
   try {
@@ -152,7 +162,11 @@ function filterPlaceNames(
     .filter(
       (name) =>
         isValidAltName(name.name, name.lang) &&
-        (isImportantPlace(featureCode) ||
+        (isImportantPlace({
+          population,
+          featureClass,
+          featureCode
+        }) ||
           isValidCountryLanguage(name.lang, countryCode))
     )
     .map((name) => PlaceHelper.formatName(name.name, name.lang))

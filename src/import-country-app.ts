@@ -20,7 +20,7 @@ const [placeType, population] = ["true", "1", "True", "yes"].includes(
         P: ["PPLC", "PPLA", "ADM1", "ADM2", "PCLI"],
         A: ["ADM1", "ADM2", "PCLI"]
       },
-      500000
+      400000
     ]
   : [];
 

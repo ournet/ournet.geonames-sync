@@ -7,12 +7,14 @@ export { standardText };
 export const DATA: {
   [code: string]: string[];
 } = require("../valid-languages-by-country.json");
+
 const LANGUAGES = uniq(
   Object.keys(DATA).reduce<string[]>((list, cc) => {
     list = list.concat(DATA[cc]);
     return list;
   }, [])
 );
+
 const COUNTRIES = Object.keys(DATA);
 
 // export function getValidLanguageCodes() {
@@ -24,7 +26,7 @@ export function isValidLanguage(lang: string) {
 }
 
 export function isValidCountryLanguage(lang: string, country: string) {
-  const codes = DATA[country.trim().toLowerCase()];
+  const codes = DATA[country.trim().toLowerCase()] || [];
   return codes.indexOf(lang) > -1;
 }
 
@@ -177,7 +179,7 @@ export function isValidPlace(place: {
     place.admin1_code !== "00" &&
     place.feature_class &&
     place.feature_code &&
-    isSupportedCountry(place.country_code) &&
+    // isSupportedCountry(place.country_code) &&
     isValidPlaceType(place) &&
     !!place.timezone
   );
