@@ -1,38 +1,6 @@
-import { uniq } from "@ournet/domain";
-
 const standardText = require("standard-text") as (text: string) => string;
 
 export { standardText };
-
-export const DATA: {
-  [code: string]: string[];
-} = require("../valid-languages-by-country.json");
-
-const LANGUAGES = uniq(
-  Object.keys(DATA).reduce<string[]>((list, cc) => {
-    list = list.concat(DATA[cc]);
-    return list;
-  }, [])
-);
-
-const COUNTRIES = Object.keys(DATA);
-
-// export function getValidLanguageCodes() {
-// 	return CODES;
-// }
-
-export function isValidLanguage(lang: string) {
-  return LANGUAGES.indexOf(lang) > -1;
-}
-
-export function isValidCountryLanguage(lang: string, country: string) {
-  const codes = DATA[country.trim().toLowerCase()] || [];
-  return codes.indexOf(lang) > -1;
-}
-
-export function isSupportedCountry(country: string) {
-  return COUNTRIES.indexOf(country) >= 0;
-}
 
 export function isValidAltName(
   name: string,
@@ -69,7 +37,7 @@ export function isValidAltName(
     if (name.startsWith("Raionul ")) return false;
   }
 
-  if (["ro", "en", "fr", "de", "it", "es", "pt", "pl"].includes(lang)) {
+  if (["ro", "en", "fr", "de", "it", "es", "pt", "pl", "hr"].includes(lang)) {
     for (const ch of name) {
       if (isRussianChar(ch)) {
         return false;

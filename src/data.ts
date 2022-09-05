@@ -5,8 +5,7 @@ import DynamoDB = require("aws-sdk/clients/dynamodb");
 import { Place, PlaceHelper } from "@ournet/places-domain";
 import { PlaceRepositoryBuilder } from "@ournet/places-data";
 import { GeonameAltName } from "./geonames";
-import { isValidAltName, isValidCountryLanguage } from "./utils";
-import { PlaceFeatureClassType } from "@ournet/places-domain/lib/entities/place";
+import { isValidAltName } from "./utils";
 
 const ES_HOST = process.env.PLACES_ES_HOST;
 if (!ES_HOST) {
@@ -19,14 +18,6 @@ const repository = PlaceRepositoryBuilder.build(dynamoClient as any, ES_HOST);
 export function init() {
   return repository.createStorage();
 }
-
-const isImportantPlace = ({
-  featureCode,
-  population,
-  featureClass
-}: Pick<Place, "featureClass" | "featureCode" | "population">) =>
-  ["PPLC", "PPLA", "PPLA2", "ADM1", "ADM2", "PCLI"].includes(featureCode) ||
-  (featureClass === "P" && population && population > 250_000);
 
 export async function setPlaceAltName(
   id: string,
@@ -48,12 +39,7 @@ export async function setPlaceAltName(
         isPreferred: nn.isPreferred
       };
     })
-    .filter(
-      (name) =>
-        isValidAltName(name.name, name.lang, place.featureCode) &&
-        (isImportantPlace(place) ||
-          isValidCountryLanguage(name.lang, place.countryCode))
-    );
+    .filter((name) => isValidAltName(name.name, name.lang, place.featureCode));
 
   if (place.names) {
     debug("names", place.names);
@@ -89,13 +75,7 @@ export async function putPlace(place: Place) {
   cleanObject(place);
 
   if (place.names) {
-    place.names = filterPlaceNames(
-      place.names,
-      place.countryCode,
-      place.featureCode,
-      place.featureClass,
-      place.population
-    );
+    place.names = filterPlaceNames(place.names);
     if (!place.names) {
       delete place.names;
     }
@@ -116,38 +96,7 @@ export async function putPlace(place: Place) {
     });
 }
 
-// export function updatePlace(place: Place) {
-//     cleanObject(place);
-
-//     if (place.names) {
-//         place.names = filterPlaceNames(place.countryCode, place.names);
-//         if (!place.names) {
-//             delete place.names;
-//         }
-//     }
-
-//     const id = place.id;
-//     const set: Partial<Place> = place;
-//     delete set.id;
-
-//     const data: RepositoryUpdateData<Place> = { id, set };
-
-//     // const remove: (keyof Place)[] = [];
-
-//     return repository.update(data)
-//         .then(function (nplace) {
-//             debug('updated place', place.id, place.name, place.countryCode);
-//             return nplace;
-//         });
-// }
-
-function filterPlaceNames(
-  names: string,
-  countryCode: string,
-  featureCode: string,
-  featureClass: PlaceFeatureClassType,
-  population?: number
-) {
+function filterPlaceNames(names: string) {
   // let parsedNames: { name: string, lang: string }[];
   try {
     PlaceHelper.parseNames(names);
@@ -159,16 +108,7 @@ function filterPlaceNames(
   }
 
   return PlaceHelper.parseNames(names)
-    .filter(
-      (name) =>
-        isValidAltName(name.name, name.lang) &&
-        (isImportantPlace({
-          population,
-          featureClass,
-          featureCode
-        }) ||
-          isValidCountryLanguage(name.lang, countryCode))
-    )
+    .filter((name) => isValidAltName(name.name, name.lang))
     .map((name) => PlaceHelper.formatName(name.name, name.lang))
     .join("|");
 }
